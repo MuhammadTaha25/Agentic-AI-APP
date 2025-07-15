@@ -201,248 +201,248 @@
 
 # if __name__ == "__main__":
 # #     main()
-import os
-from dotenv import load_dotenv
-import streamlit as st
-from phi.tools.duckduckgo import DuckDuckGo
-from phi.agent import Agent
-from phi.model.openai import OpenAIChat
-from phi.tools.yfinance import YFinanceTools
-import openai
-from phi.model.groq import Groq
-# --- 1. Load configuration ---
-def load_config():
-    load_dotenv(os.getenv('DOTENV_PATH', '.env'))
-    openai.api_key = st.secrets["OPENAI_API_KEY"]
-    st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
+# import os
+# from dotenv import load_dotenv
+# import streamlit as st
+# from phi.tools.duckduckgo import DuckDuckGo
+# from phi.agent import Agent
+# from phi.model.openai import OpenAIChat
+# from phi.tools.yfinance import YFinanceTools
+# import openai
+# from phi.model.groq import Groq
+# # --- 1. Load configuration ---
+# def load_config():
+#     load_dotenv(os.getenv('DOTENV_PATH', '.env'))
+#     openai.api_key = st.secrets["OPENAI_API_KEY"]
+#     st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
 
-# --- 2. Define available companies ---
-def get_companies():
-    return {
-        'Apple Inc.': 'AAPL',
-        'Microsoft Corp.': 'MSFT',
-        'NVIDIA': 'NVDA',
-        'Tesla': 'TSLA',
-        'BlackRock': 'BLK',
-        'LVMH': 'MC.PA',
-        'Samsung Electronics': '005930.KS',
-        'Amazon': 'AMZN',
-        'Alphabet': 'GOOGL',
-        'Meta Platforms': 'META',
-        'Berkshire Hathaway': 'BRK.B',
-        'Visa': 'V',
-        'JPMorgan Chase': 'JPM',
-        'Johnson & Johnson': 'JNJ',
-        'UnitedHealth Group': 'UNH',
-        'Procter & Gamble': 'PG',
-        'Mastercard': 'MA',
-        'Eli Lilly': 'LLY',
-        'Home Depot': 'HD',
-        'Walmart': 'WMT',
-        'Bank of America': 'BAC',
-        'Disney': 'DIS',
-        'Intel': 'INTC',
-        'Oracle': 'ORCL'
-    }
+# # --- 2. Define available companies ---
+# def get_companies():
+#     return {
+#         'Apple Inc.': 'AAPL',
+#         'Microsoft Corp.': 'MSFT',
+#         'NVIDIA': 'NVDA',
+#         'Tesla': 'TSLA',
+#         'BlackRock': 'BLK',
+#         'LVMH': 'MC.PA',
+#         'Samsung Electronics': '005930.KS',
+#         'Amazon': 'AMZN',
+#         'Alphabet': 'GOOGL',
+#         'Meta Platforms': 'META',
+#         'Berkshire Hathaway': 'BRK.B',
+#         'Visa': 'V',
+#         'JPMorgan Chase': 'JPM',
+#         'Johnson & Johnson': 'JNJ',
+#         'UnitedHealth Group': 'UNH',
+#         'Procter & Gamble': 'PG',
+#         'Mastercard': 'MA',
+#         'Eli Lilly': 'LLY',
+#         'Home Depot': 'HD',
+#         'Walmart': 'WMT',
+#         'Bank of America': 'BAC',
+#         'Disney': 'DIS',
+#         'Intel': 'INTC',
+#         'Oracle': 'ORCL'
+#     }
 
-# --- 3. Initialize agents ---
-def init_agents():
+# # --- 3. Initialize agents ---
+# def init_agents():
     
-    groq_key = st.secrets["GROQ_API_KEY"]      
+#     groq_key = st.secrets["GROQ_API_KEY"]      
     
-    base_model=Groq(id="llama-3.3-70b-versatile",
-                api_key=groq_key,         # temperature=0.7,           # optional     
-                # max_output_tokens=1024,    # optional  
-               )
-    web_agent = Agent(
-        name="Web Agent",
-        role="Search the web for information",
-        model=base_model,
-        tools=[DuckDuckGo()],
-        instructions=[
-            "Summarize and always include sources (links)",
-            "Provide precise and clear information on the topic"
-        ],
-        show_tools_calls=True,
-        markdown=True,
-    )
-    finance_agent = Agent(
-        name="Finance Agent",
-        model=base_model,
-        tools=[YFinanceTools(
-            stock_price=True,
-            analyst_recommendations=True,
-            stock_fundamentals=True,
-            company_news=True,
-        )],
-        instructions=[
-            "Use tables to display data, not text",
-            "Be concise and to the point ",
-            "Always include sources (links)",
-        ],
-        show_tools_calls=True,
-        markdown=True,
-    )
-    final_agent = Agent(
-        name="Final Answer Agent",
-        model=base_model,
-        instructions=[
-            "Summarize clearly and precisely",
-            "Always include sources (links)",
-            "Use tables to display data"
-        ],
-        markdown=True,
-    )
-    return web_agent, finance_agent, final_agent
+#     base_model=Groq(id="llama-3.3-70b-versatile",
+#                 api_key=groq_key,         # temperature=0.7,           # optional     
+#                 # max_output_tokens=1024,    # optional  
+#                )
+#     web_agent = Agent(
+#         name="Web Agent",
+#         role="Search the web for information",
+#         model=base_model,
+#         tools=[DuckDuckGo()],
+#         instructions=[
+#             "Summarize and always include sources (links)",
+#             "Provide precise and clear information on the topic"
+#         ],
+#         show_tools_calls=True,
+#         markdown=True,
+#     )
+#     finance_agent = Agent(
+#         name="Finance Agent",
+#         model=base_model,
+#         tools=[YFinanceTools(
+#             stock_price=True,
+#             analyst_recommendations=True,
+#             stock_fundamentals=True,
+#             company_news=True,
+#         )],
+#         instructions=[
+#             "Use tables to display data, not text",
+#             "Be concise and to the point ",
+#             "Always include sources (links)",
+#         ],
+#         show_tools_calls=True,
+#         markdown=True,
+#     )
+#     final_agent = Agent(
+#         name="Final Answer Agent",
+#         model=base_model,
+#         instructions=[
+#             "Summarize clearly and precisely",
+#             "Always include sources (links)",
+#             "Use tables to display data"
+#         ],
+#         markdown=True,
+#     )
+#     return web_agent, finance_agent, final_agent
 
-# --- 4. Reset all inputs ---
-def reset_inputs():
-    st.session_state.selected_companies = []
-    st.session_state.tickers_input = ""
-    st.session_state.user_query = ""
-    st.session_state.input_key += 1  # Force UI refresh
+# # --- 4. Reset all inputs ---
+# def reset_inputs():
+#     st.session_state.selected_companies = []
+#     st.session_state.tickers_input = ""
+#     st.session_state.user_query = ""
+#     st.session_state.input_key += 1  # Force UI refresh
 
-# --- 5. Main app flow ---
-def main():
-    # Initialize session state
-    if 'selected_companies' not in st.session_state:
-        st.session_state.selected_companies = []
-    if 'tickers_input' not in st.session_state:
-        st.session_state.tickers_input = ""
-    if 'user_query' not in st.session_state:
-        st.session_state.user_query = ""
-    if 'last_response' not in st.session_state:
-        st.session_state.last_response = None
-    if 'input_key' not in st.session_state:
-        st.session_state.input_key = 0
+# # --- 5. Main app flow ---
+# def main():
+#     # Initialize session state
+#     if 'selected_companies' not in st.session_state:
+#         st.session_state.selected_companies = []
+#     if 'tickers_input' not in st.session_state:
+#         st.session_state.tickers_input = ""
+#     if 'user_query' not in st.session_state:
+#         st.session_state.user_query = ""
+#     if 'last_response' not in st.session_state:
+#         st.session_state.last_response = None
+#     if 'input_key' not in st.session_state:
+#         st.session_state.input_key = 0
 
-    # Load config
-    load_config()
+#     # Load config
+#     load_config()
     
-    # Page title
-    st.title("📊 Stock Insights & Real-Time Market Answers")
+#     # Page title
+#     st.title("📊 Stock Insights & Real-Time Market Answers")
     
-    # Initialize agents
-    companies = get_companies()
-    web_agent, finance_agent, final_agent = init_agents()
+#     # Initialize agents
+#     companies = get_companies()
+#     web_agent, finance_agent, final_agent = init_agents()
 
-    # --- Sidebar: Company Selection ---
-    st.sidebar.header("Select Companies")
+#     # --- Sidebar: Company Selection ---
+#     st.sidebar.header("Select Companies")
     
-    # 1. COMPANY SELECTION (Checkbox approach)
-    st.sidebar.subheader("Select from popular companies:")
-    selected_from_list = []
-    for name in companies:
-        # Create a unique key using input_key to force refresh
-        key = f"company_{name}_{st.session_state.input_key}"
-        if st.sidebar.checkbox(name, value=(name in st.session_state.selected_companies), key=key):
-            if name not in st.session_state.selected_companies:
-                st.session_state.selected_companies.append(name)
-        else:
-            if name in st.session_state.selected_companies:
-                st.session_state.selected_companies.remove(name)
+#     # 1. COMPANY SELECTION (Checkbox approach)
+#     st.sidebar.subheader("Select from popular companies:")
+#     selected_from_list = []
+#     for name in companies:
+#         # Create a unique key using input_key to force refresh
+#         key = f"company_{name}_{st.session_state.input_key}"
+#         if st.sidebar.checkbox(name, value=(name in st.session_state.selected_companies), key=key):
+#             if name not in st.session_state.selected_companies:
+#                 st.session_state.selected_companies.append(name)
+#         else:
+#             if name in st.session_state.selected_companies:
+#                 st.session_state.selected_companies.remove(name)
     
-    # 2. MANUAL TICKER INPUT
-    st.sidebar.subheader("OR Enter Tickers Manually")
-    # Create a unique key using input_key to force refresh
-    tickers_input = st.sidebar.text_input(
-        "Tickers (comma separated):", 
-        value=st.session_state.tickers_input,
-        key=f"tickers_input_{st.session_state.input_key}"
-    )
-    if tickers_input != st.session_state.tickers_input:
-        st.session_state.tickers_input = tickers_input
+#     # 2. MANUAL TICKER INPUT
+#     st.sidebar.subheader("OR Enter Tickers Manually")
+#     # Create a unique key using input_key to force refresh
+#     tickers_input = st.sidebar.text_input(
+#         "Tickers (comma separated):", 
+#         value=st.session_state.tickers_input,
+#         key=f"tickers_input_{st.session_state.input_key}"
+#     )
+#     if tickers_input != st.session_state.tickers_input:
+#         st.session_state.tickers_input = tickers_input
     
-    # Combine selected and custom tickers
-    selected_tickers = [companies[name] for name in st.session_state.selected_companies]
-    custom_tickers_list = [t.strip().upper() for t in st.session_state.tickers_input.split(",") if t.strip()]
-    all_tickers = list(set(selected_tickers + custom_tickers_list))
+#     # Combine selected and custom tickers
+#     selected_tickers = [companies[name] for name in st.session_state.selected_companies]
+#     custom_tickers_list = [t.strip().upper() for t in st.session_state.tickers_input.split(",") if t.strip()]
+#     all_tickers = list(set(selected_tickers + custom_tickers_list))
     
-    # Display current selection
-    st.sidebar.subheader("Current Tickers")
-    if all_tickers:
-        st.sidebar.write(", ".join(all_tickers))
-    else:
-        st.sidebar.warning("No tickers selected")
+#     # Display current selection
+#     st.sidebar.subheader("Current Tickers")
+#     if all_tickers:
+#         st.sidebar.write(", ".join(all_tickers))
+#     else:
+#         st.sidebar.warning("No tickers selected")
     
-    # Clear button in sidebar
-    if st.sidebar.button("Clear All Inputs"):
-        reset_inputs()
-        st.session_state.last_response = None
-        st.rerun()
+#     # Clear button in sidebar
+#     if st.sidebar.button("Clear All Inputs"):
+#         reset_inputs()
+#         st.session_state.last_response = None
+#         st.rerun()
     
-    # --- Main Area: Query Input ---
-    st.subheader("Ask a Question")
-    # Create a unique key using input_key to force refresh
-    user_query = st.text_input(
-        "Enter your question about the selected companies:", 
-        value=st.session_state.user_query,
-        key=f"query_input_{st.session_state.input_key}"
-    )
-    if user_query != st.session_state.user_query:
-        st.session_state.user_query = user_query
+#     # --- Main Area: Query Input ---
+#     st.subheader("Ask a Question")
+#     # Create a unique key using input_key to force refresh
+#     user_query = st.text_input(
+#         "Enter your question about the selected companies:", 
+#         value=st.session_state.user_query,
+#         key=f"query_input_{st.session_state.input_key}"
+#     )
+#     if user_query != st.session_state.user_query:
+#         st.session_state.user_query = user_query
     
-    # Submit button
-    if st.button("Submit Query", key=f"submit_{st.session_state.input_key}"):
-        # Validate inputs
-        if not all_tickers:
-            st.error("Please select at least one company or enter a ticker.")
-            return
+#     # Submit button
+#     if st.button("Submit Query", key=f"submit_{st.session_state.input_key}"):
+#         # Validate inputs
+#         if not all_tickers:
+#             st.error("Please select at least one company or enter a ticker.")
+#             return
             
-        if not st.session_state.user_query.strip():
-            st.error("Please enter your query.")
-            return
+#         if not st.session_state.user_query.strip():
+#             st.error("Please enter your query.")
+#             return
         
-        # Combine for consistent payload
-        combined = f"{', '.join(all_tickers)} - {st.session_state.user_query}"
+#         # Combine for consistent payload
+#         combined = f"{', '.join(all_tickers)} - {st.session_state.user_query}"
         
-        # Fetch agent responses
-        with st.spinner("🔍 Processing your query..."):
-            # Web search
-            web_resp = web_agent.run(f"Explain {combined} with web sources")
-        with st.spinner("💹 Fetching finance data..."):
-            # Finance data
-            finance_resp = finance_agent.run(f"Get financial details for {combined}")
-            # Get final summary
-        final_answer = summarize_final_answer(combined, web_resp, finance_resp, final_agent)
+#         # Fetch agent responses
+#         with st.spinner("🔍 Processing your query..."):
+#             # Web search
+#             web_resp = web_agent.run(f"Explain {combined} with web sources")
+#         with st.spinner("💹 Fetching finance data..."):
+#             # Finance data
+#             finance_resp = finance_agent.run(f"Get financial details for {combined}")
+#             # Get final summary
+#         final_answer = summarize_final_answer(combined, web_resp, finance_resp, final_agent)
         
-        st.session_state.last_response = final_answer
+#         st.session_state.last_response = final_answer
         
-        # Reset inputs after successful response
-        reset_inputs()
-        st.rerun()
+#         # Reset inputs after successful response
+#         reset_inputs()
+#         st.rerun()
     
-    # Display last response
-    if st.session_state.last_response:
-        st.subheader("Latest Response")
-        st.markdown(st.session_state.last_response, unsafe_allow_html=True)
+#     # Display last response
+#     if st.session_state.last_response:
+#         st.subheader("Latest Response")
+#         st.markdown(st.session_state.last_response, unsafe_allow_html=True)
 
-# --- 6. Generate final answer ---
-def summarize_final_answer(combined_payload, web_resp, finance_resp, final_agent):
-    prompt = f"""
-## User Query: 
-{combined_payload}
+# # --- 6. Generate final answer ---
+# def summarize_final_answer(combined_payload, web_resp, finance_resp, final_agent):
+#     prompt = f"""
+# ## User Query: 
+# {combined_payload}
 
-## Web Information:
-{web_resp.get_content_as_string()}
+# ## Web Information:
+# {web_resp.get_content_as_string()}
 
-## Finance Information:
-{finance_resp.get_content_as_string()}
+# ## Finance Information:
+# {finance_resp.get_content_as_string()}
 
-## Instructions:
-Based on the information above, provide a final summarized answer that:
-- Is clear, precise, and well-structured
-- Includes relevant sources links not code functions
-- Uses tables for financial data presentation
-- Addresses all aspects of the user's query
-- write complete message don't skip response due to length response
-"""
-    with st.spinner("✍️ Generating final answer..."):
-        final_resp = final_agent.run(prompt)
-    return final_resp.get_content_as_string()
+# ## Instructions:
+# Based on the information above, provide a final summarized answer that:
+# - Is clear, precise, and well-structured
+# - Includes relevant sources links not code functions
+# - Uses tables for financial data presentation
+# - Addresses all aspects of the user's query
+# - write complete message don't skip response due to length response
+# """
+#     with st.spinner("✍️ Generating final answer..."):
+#         final_resp = final_agent.run(prompt)
+#     return final_resp.get_content_as_string()
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
 
 # import os
 # from dotenv import load_dotenv
@@ -591,4 +591,231 @@ if __name__ == "__main__":
 
 # if __name__ == "__main__":
 #     main()
+import os
+from dotenv import load_dotenv
+import streamlit as st
+from phi.tools.duckduckgo import DuckDuckGo
+from phi.agent import Agent
+from phi.model.openai import OpenAIChat
+from phi.tools.yfinance import YFinanceTools
+import openai
+from phi.model.groq import Groq
+
+# --- 1. Load configuration ---
+def load_config():
+    load_dotenv(os.getenv('DOTENV_PATH', '.env'))
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
+    st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
+
+# --- 2. Define available companies ---
+def get_companies():
+    return {
+        'Apple Inc.': 'AAPL',
+        'Microsoft Corp.': 'MSFT',
+        'NVIDIA': 'NVDA',
+        'Tesla': 'TSLA',
+        'BlackRock': 'BLK',
+        'LVMH': 'MC.PA',
+        'Samsung Electronics': '005930.KS',
+        'Amazon': 'AMZN',
+        'Alphabet': 'GOOGL',
+        'Meta Platforms': 'META',
+        'Berkshire Hathaway': 'BRK.B',
+        'Visa': 'V',
+        'JPMorgan Chase': 'JPM',
+        'Johnson & Johnson': 'JNJ',
+        'UnitedHealth Group': 'UNH',
+        'Procter & Gamble': 'PG',
+        'Mastercard': 'MA',
+        'Eli Lilly': 'LLY',
+        'Home Depot': 'HD',
+        'Walmart': 'WMT',
+        'Bank of America': 'BAC',
+        'Disney': 'DIS',
+        'Intel': 'INTC',
+        'Oracle': 'ORCL'
+    }
+
+# --- 3. Initialize agents ---
+def init_agents():
+    groq_key = st.secrets["GROQ_API_KEY"]      
+    base_model = Groq(
+        id="llama-3.3-70b-versatile",
+        api_key=groq_key
+    )
+    web_agent = Agent(
+        name="Web Agent",
+        role="Search the web for information",
+        model=base_model,
+        tools=[DuckDuckGo()],
+        instructions=[
+            "Summarize and always include sources (links)",
+            "Provide precise and clear information on the topic"
+        ],
+        show_tools_calls=True,
+        markdown=True,
+    )
+    finance_agent = Agent(
+        name="Finance Agent",
+        model=base_model,
+        tools=[YFinanceTools(
+            stock_price=True,
+            analyst_recommendations=True,
+            stock_fundamentals=True,
+            company_news=True,
+        )],
+        instructions=[
+            "Use tables to display data, not text",
+            "Be concise and to the point ",
+            "Always include sources (links)",
+        ],
+        show_tools_calls=True,
+        markdown=True,
+    )
+    final_agent = Agent(
+        name="Final Answer Agent",
+        model=base_model,
+        instructions=[
+            "Summarize clearly and precisely",
+            "Always include sources (links)",
+            "Use tables to display data"
+        ],
+        markdown=True,
+    )
+    return web_agent, finance_agent, final_agent
+
+# --- 4. Reset all inputs ---
+def reset_inputs():
+    st.session_state.selected_companies = []
+    st.session_state.tickers_input = ""
+    st.session_state.user_query = ""
+    st.session_state.input_key += 1  # Force UI refresh
+
+# --- 5. Main app flow ---
+def main():
+    # Initialize session state
+    if 'selected_companies' not in st.session_state:
+        st.session_state.selected_companies = []
+    if 'tickers_input' not in st.session_state:
+        st.session_state.tickers_input = ""
+    if 'user_query' not in st.session_state:
+        st.session_state.user_query = ""
+    if 'input_key' not in st.session_state:
+        st.session_state.input_key = 0
+
+    # Load config
+    load_config()
+    
+    # Page title
+    st.title("📊 Stock Insights & Real-Time Market Answers")
+    
+    # Initialize agents
+    companies = get_companies()
+    web_agent, finance_agent, final_agent = init_agents()
+
+    # --- Sidebar: Company Selection ---
+    st.sidebar.header("Select Companies")
+    
+    # 1. COMPANY SELECTION (Checkbox approach)
+    st.sidebar.subheader("Select from popular companies:")
+    for name in companies:
+        key = f"company_{name}_{st.session_state.input_key}"
+        if st.sidebar.checkbox(name, value=(name in st.session_state.selected_companies), key=key):
+            if name not in st.session_state.selected_companies:
+                st.session_state.selected_companies.append(name)
+        else:
+            if name in st.session_state.selected_companies:
+                st.session_state.selected_companies.remove(name)
+    
+    # 2. MANUAL TICKER INPUT
+    st.sidebar.subheader("OR Enter Tickers Manually")
+    tickers_input = st.sidebar.text_input(
+        "Tickers (comma separated):", 
+        value=st.session_state.tickers_input,
+        key=f"tickers_input_{st.session_state.input_key}"
+    )
+    if tickers_input != st.session_state.tickers_input:
+        st.session_state.tickers_input = tickers_input
+    
+    # Combine selected and custom tickers
+    selected_tickers = [companies[name] for name in st.session_state.selected_companies]
+    custom_tickers_list = [t.strip().upper() for t in st.session_state.tickers_input.split(",") if t.strip()]
+    all_tickers = list(set(selected_tickers + custom_tickers_list))
+    
+    # Display current selection
+    st.sidebar.subheader("Current Tickers")
+    if all_tickers:
+        st.sidebar.write(", ".join(all_tickers))
+    else:
+        st.sidebar.warning("No tickers selected")
+    
+    # Clear button in sidebar
+    if st.sidebar.button("Clear All Inputs"):
+        reset_inputs()
+        st.rerun()
+    
+    # --- Main Area: Query Input ---
+    st.subheader("Ask a Question")
+    user_query = st.text_input(
+        "Enter your question about the selected companies:", 
+        value=st.session_state.user_query,
+        key=f"query_input_{st.session_state.input_key}"
+    )
+    if user_query != st.session_state.user_query:
+        st.session_state.user_query = user_query
+    
+    # Submit button
+    if st.button("Submit Query", key=f"submit_{st.session_state.input_key}"):
+        # Validate inputs
+        if not all_tickers:
+            st.error("Please select at least one company or enter a ticker.")
+            return
+        
+        if not st.session_state.user_query.strip():
+            st.error("Please enter your query.")
+            return
+        
+        # Combine for consistent payload
+        combined = f"{', '.join(all_tickers)} - {st.session_state.user_query}"
+        
+        # Fetch agent responses
+        with st.spinner("🔍 Processing your query..."):
+            web_resp = web_agent.run(f"Explain {combined} with web sources")
+        with st.spinner("💹 Fetching finance data..."):
+            finance_resp = finance_agent.run(f"Get financial details for {combined}")
+        
+        # Generate final answer and display immediately
+        final_answer = summarize_final_answer(combined, web_resp, finance_resp, final_agent)
+        st.markdown(final_answer, unsafe_allow_html=True)
+        
+        # Reset inputs after successful response
+        reset_inputs()
+        st.rerun()
+
+# --- 6. Generate final answer ---
+def summarize_final_answer(combined_payload, web_resp, finance_resp, final_agent):
+    prompt = f"""
+## User Query: 
+{combined_payload}
+
+## Web Information:
+{web_resp.get_content_as_string()}
+
+## Finance Information:
+{finance_resp.get_content_as_string()}
+
+## Instructions:
+Based on the information above, provide a final summarized answer that:
+- Is clear, precise, and well-structured
+- Includes relevant sources links not code functions
+- Uses tables for financial data presentation
+- Addresses all aspects of the user's query
+- write complete message don't skip response due to length response
+"""
+    with st.spinner("✍️ Generating final answer..."):
+        final_resp = final_agent.run(prompt)
+    return final_resp.get_content_as_string()
+
+if __name__ == "__main__":
+    main()
 

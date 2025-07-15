@@ -245,7 +245,7 @@ def get_companies():
         'Oracle': 'ORCL'
     }
 
---- 3. Initialize agents ---
+# --- 3. Initialize agents ---
 def init_agents():
     
     groq_key = st.secrets["GROQ_API_KEY"]      

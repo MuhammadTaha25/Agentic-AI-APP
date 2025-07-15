@@ -400,7 +400,7 @@ def main():
         with st.spinner("🔍 Processing your query..."):
             # Web search
             web_resp = web_agent.run(f"Explain {combined} with web sources")
-        with st.spinner("💹 Fetching finance data...")
+        with st.spinner("💹 Fetching finance data..."):
             # Finance data
             finance_resp = finance_agent.run(f"Get financial details for {combined}")
             # Get final summary

@@ -7,14 +7,15 @@ from phi.agent import Agent
 from phi.tools.yfinance import YFinanceTools
 # from phi.model.google import Gemini
 # from phi.model.google import Gemini
-from phi.model.deepseek import DeepSeekChat
+# from phi.model.deepseek import DeepSeekChat
+from phi.model.groq import Groq
 
 # import openai
 # # --- 1. Load configuration from .env ---
 def load_config():
     # load_dotenv(os.getenv('DOTENV_PATH', '.env'))
     # openai.api_key = st.secrets["OPENAI_API_KEY"]
-    
+    GROQ_API_KEY=st.secrets["GROQ_API_KEY"]
     st.set_page_config(page_title="Stock & Query App", layout="wide")
 
 
@@ -59,12 +60,12 @@ def init_agents():
 #     max_output_tokens=512,       # limit output
 #     temperature=0.7,
 # )
-    base_model = DeepSeekChat(
-        id="deepseek-v1",
-        name="DeepSeek"
-        # agar DeepSeekChat ko api_key ya koi config chahiye to yahan pass karo
-    )
-
+    # base_model = DeepSeekChat(
+    #     id="deepseek-v1",
+    #     name="DeepSeek"
+    #     # agar DeepSeekChat ko api_key ya koi config chahiye to yahan pass karo
+    # )
+    base_model=Groq(id="llama3-groq-70b-8192-tool-use-preview")
     web_agent = Agent(
         name="Web Agent",
         role="Search the web for information",

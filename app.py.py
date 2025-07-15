@@ -70,7 +70,7 @@ def init_agents():
     #     api_key=groq_key,
          # temperature=0.7,           # optional
         # max_output_tokens=1024,    # optional
-    )
+    # )
     web_agent = Agent(
         name="Web Agent",
         role="Search the web for information",

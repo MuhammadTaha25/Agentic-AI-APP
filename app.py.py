@@ -15,10 +15,8 @@ from phi.model.groq import Groq
 def load_config():
     # load_dotenv(os.getenv('DOTENV_PATH', '.env'))
     # openai.api_key = st.secrets["OPENAI_API_KEY"]
-    os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
-    st.set_page_config(page_title="Stock & Query App", layout="wide")
-load_dotenv()
-os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
+    groq_key = st.secrets["GROQ_API_KEY"]
+    st.set_page_config(page_title="Stock & Query App",)
 
 # --- 2. Define the pool of available companies ---
 def get_companies():
@@ -68,7 +66,7 @@ def init_agents():
     # )
     base_model=Groq(
         id="llama3-groq-70b-8192-tool-use-preview",
-        api_key=os.getenv("GROQ_API_KEY"),
+        api_key=groq_key,
         # temperature=0.7,           # optional
         # max_output_tokens=1024,    # optional
     )

@@ -51,7 +51,7 @@ def get_companies():
 def init_agents():
     # base_model = OpenAIChat(id="gpt-3.5-turbo-1106")
     base_model=Gemini(id="gemini-1.5-flash",
-                      name="Gemini"",
+                      name="Gemini",
                       provider="Google",api_key="AIzaSyDp1vfHrpcVW9PdBmj0pSIMyab9smpVmSs"
                      ),
 

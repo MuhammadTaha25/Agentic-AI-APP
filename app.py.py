@@ -88,7 +88,8 @@ def init_agents():
         model=base_model,
         tools=[YFinanceTools(
             stock_price=True,
-            instructions=["use tables to display data","always include sources (links)],
+            instructions=["use tables to display data",
+                          "always include sources (links)"],
             analyst_recommendations=True,
             stock_fundamentals=True,
             company_news=True,

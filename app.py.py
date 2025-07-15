@@ -106,11 +106,10 @@ def get_user_inputs(companies: dict):
         key="tickers_input"
     )
     user_query = st.text_input("Your Query:", key="user_query")
-    voice_recording=speech_to_text(language="en",use_container_width=True,just_once=True,key="STT")
-    
+    voice_recording = speech_to_text(language="en", use_container_width=True, just_once=True, key="STT")
     if voice_recording:
-        user_query=voice_recording
-    return tickers_input, user_query
+        user_query = voice_recording
+    return tickers_input, user_query, bool(voice_recording)  
 
 
 # --- 5. Query each agent and return their raw responses ---
@@ -152,9 +151,11 @@ def main():
     # Page title
     st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
     st.title("📊 Stock Insights & Real-Time Market Answers")
-
+    chat_container = st.container()
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
     # Inputs
-    tickers_input, user_query = get_user_inputs(companies)
+    tickers_input, user_query ,voice_recordings= get_user_inputs(companies)
     if (st.button("Send") or send_input()) or voice_recording:
         # Validate tickers
         tickers = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]

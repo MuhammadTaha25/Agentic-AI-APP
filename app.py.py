@@ -49,7 +49,7 @@ def get_companies():
 
 # --- 3. Initialize all three agents with shared model config ---
 def init_agents():
-    base_model = OpenAIChat(id="gpt-3.5-turbo-1106",stream=True,)
+    base_model = OpenAIChat(id="gpt-3.5-turbo-0125",stream=True,)
 #     base_model = Gemini(
 #     id="gemini-1.5-flash",
 #     name="Gemini",

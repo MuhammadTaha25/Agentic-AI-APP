@@ -64,6 +64,8 @@ def init_agents():
     #     name="DeepSeek"
     #     # agar DeepSeekChat ko api_key ya koi config chahiye to yahan pass karo
     # )
+    groq_key = st.secrets["GROQ_API_KEY"]
+
     base_model=Groq(
         id="llama3-groq-70b-8192-tool-use-preview",
         api_key=groq_key,

@@ -819,3 +819,5 @@ Based on the information above, provide a final summarized answer that:
 if __name__ == "__main__":
     main()
 
+    main()
+

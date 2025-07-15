@@ -114,7 +114,7 @@ def fetch_agent_responses(tickers, combined_payload, web_agent, finance_agent):
         web_resp = web_agent.run(f"Explain {combined_payload} with web sources")
     # 5b. Finance data
     with st.spinner("💹 Fetching finance data..."):
-        finance_resp = finance_agent.run(f"Get financial details for {tickers}")
+        finance_resp = finance_agent.run(f"Get financial details for {combined_payload}")
     return web_resp, finance_resp
 
 

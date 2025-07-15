@@ -449,25 +449,41 @@ from dotenv import load_dotenv
 import streamlit as st
 from phi.tools.duckduckgo import DuckDuckGo
 from phi.agent import Agent
-from phi.model.groq import Groq
 from phi.tools.yfinance import YFinanceTools
+from phi.model.groq import Groq
 
 # --- 1. Load configuration ---
 def load_config():
-    # Load environment and secrets (Streamlit Secrets only)
+    # Load Streamlit secrets for API keys
     st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
 
-# --- 2. Available companies ---
+# --- 2. Define available companies ---
 def get_companies():
     return {
-        'Apple Inc.': 'AAPL', 'Microsoft Corp.': 'MSFT', 'NVIDIA': 'NVDA',
-        'Tesla': 'TSLA', 'BlackRock': 'BLK', 'LVMH': 'MC.PA',
-        'Samsung Electronics': '005930.KS', 'Amazon': 'AMZN', 'Alphabet': 'GOOGL',
-        'Meta Platforms': 'META', 'Berkshire Hathaway': 'BRK.B', 'Visa': 'V',
-        'JPMorgan Chase': 'JPM', 'Johnson & Johnson': 'JNJ', 'UnitedHealth Group': 'UNH',
-        'Procter & Gamble': 'PG', 'Mastercard': 'MA', 'Eli Lilly': 'LLY',
-        'Home Depot': 'HD', 'Walmart': 'WMT', 'Bank of America': 'BAC',
-        'Disney': 'DIS', 'Intel': 'INTC', 'Oracle': 'ORCL'
+        'Apple Inc.': 'AAPL',
+        'Microsoft Corp.': 'MSFT',
+        'NVIDIA': 'NVDA',
+        'Tesla': 'TSLA',
+        'BlackRock': 'BLK',
+        'LVMH': 'MC.PA',
+        'Samsung Electronics': '005930.KS',
+        'Amazon': 'AMZN',
+        'Alphabet': 'GOOGL',
+        'Meta Platforms': 'META',
+        'Berkshire Hathaway': 'BRK.B',
+        'Visa': 'V',
+        'JPMorgan Chase': 'JPM',
+        'Johnson & Johnson': 'JNJ',
+        'UnitedHealth Group': 'UNH',
+        'Procter & Gamble': 'PG',
+        'Mastercard': 'MA',
+        'Eli Lilly': 'LLY',
+        'Home Depot': 'HD',
+        'Walmart': 'WMT',
+        'Bank of America': 'BAC',
+        'Disney': 'DIS',
+        'Intel': 'INTC',
+        'Oracle': 'ORCL'
     }
 
 # --- 3. Initialize agents ---
@@ -475,9 +491,7 @@ def init_agents():
     groq_key = st.secrets["GROQ_API_KEY"]
     base_model = Groq(
         id="llama-3.3-70b-versatile",
-        api_key=groq_key,
-        temperature=0.7,
-        max_output_tokens=1024,
+        api_key=groq_key
     )
     web_agent = Agent(
         name="Web Agent",
@@ -520,35 +534,49 @@ def init_agents():
     )
     return web_agent, finance_agent, final_agent
 
-# --- 4. Main app ---
+# --- Main app flow ---
 def main():
     load_config()
+    companies = get_companies()
+    web_agent, finance_agent, final_agent = init_agents()
+
     st.title("📊 Stock Insights & Real-Time Market Answers")
 
-    # Inputs: tickers and query
-    tickers_input = st.text_input("Enter tickers (comma separated):", key="tickers_input")
-    query_input = st.text_input("Enter your question:", key="query_input")
+    # 1. Company toggles
+    st.subheader("Select Companies:")
+    selected = []
+    cols = st.columns(4)
+    for idx, (name, ticker) in enumerate(companies.items()):
+        if cols[idx % 4].checkbox(name):
+            selected.append(ticker)
 
-    if st.button("Submit", key="submit_btn"):
-        # Validate
-        tickers_list = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]
-        if not tickers_list:
-            st.error("Please enter at least one ticker.")
+    # 2. Query input
+    query = st.text_input("Enter your query:")
+
+    # Submit
+    if st.button("Submit"):
+        if not selected:
+            st.error("Please select at least one company.")
             return
-        if not query_input.strip():
-            st.error("Please enter your question.")
+        if not query.strip():
+            st.error("Please enter a question.")
             return
 
-        combined = f"{', '.join(tickers_list)} - {query_input}"
-        web_agent, finance_agent, final_agent = init_agents()
-
-        with st.spinner("🔍 Searching the web..."):
+        combined = f"{', '.join(selected)} - {query}"
+        with st.spinner("🔍 Processing..."):
             web_resp = web_agent.run(f"Explain {combined} with web sources")
-        with st.spinner("💹 Fetching finance data..."):
             finance_resp = finance_agent.run(f"Get financial details for {combined}")
-        with st.spinner("✍️ Generating final answer..."):
-            prompt = f"""
-User Query: {combined}
+            final_answer = summarize(combined, web_resp, finance_resp, final_agent)
+
+        st.markdown(final_answer, unsafe_allow_html=True)
+
+        # clear inputs
+        st.experimental_rerun()
+
+# --- Summarize final answer ---
+def summarize(combined_payload, web_resp, finance_resp, final_agent):
+    prompt = f"""
+User Query: {combined_payload}
 
 Web Information:
 {web_resp.get_content_as_string()}
@@ -556,17 +584,11 @@ Web Information:
 Finance Information:
 {finance_resp.get_content_as_string()}
 
-Provide a clear, precise summary, include sources, and use tables for finance data.
+Based on the above, provide a clear, concise summary with sources and tables for finance data.
 """
-            final_resp = final_agent.run(prompt)
-            result = final_resp.get_content_as_string()
-
-        # Clear inputs
-        st.session_state["tickers_input"] = ""
-        st.session_state["query_input"] = ""
-
-        # Display result
-        st.markdown(result, unsafe_allow_html=True)
+    resp = final_agent.run(prompt)
+    return resp.get_content_as_string()
 
 if __name__ == "__main__":
     main()
+

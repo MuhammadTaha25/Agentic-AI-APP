@@ -6,6 +6,7 @@ from phi.agent import Agent
 from phi.model.openai import OpenAIChat
 from phi.tools.yfinance import YFinanceTools
 import openai
+from streamlit_mic_recorder import speech_to_text
 
 # --- 1. Load configuration from .env ---
 def load_config():
@@ -105,6 +106,10 @@ def get_user_inputs(companies: dict):
         key="tickers_input"
     )
     user_query = st.text_input("Your Query:", key="user_query")
+    voice_recording=speech_to_text(language="en",use_container_width=True,just_once=True,key="STT")
+    
+    if voice_recording:
+    user_query=voice_recording
     return tickers_input, user_query
 
 
@@ -150,7 +155,7 @@ def main():
 
     # Inputs
     tickers_input, user_query = get_user_inputs(companies)
-    if st.button("Send") or send_input():
+    if (st.button("Send") or send_input()) or voice_recording:
         # Validate tickers
         tickers = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]
         if not tickers:

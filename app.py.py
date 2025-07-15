@@ -60,7 +60,7 @@ def init_agents():
     temperature=0.7,
 )
 agent = Agent(model=DeepSeekChat(), markdown=True)
-    web_agent = Agent(
+web_agent = Agent(
         name="Web Agent",
         role="Search the web for information",
         model=base_model,

@@ -53,7 +53,7 @@ def init_agents():
     base_model=Gemini(id="gemini-1.5-flash",
                       name="Gemini",
                       provider="Google",api_key="AIzaSyDp1vfHrpcVW9PdBmj0pSIMyab9smpVmSs"
-                     ),
+                     )
 
     web_agent = Agent(
         name="Web Agent",

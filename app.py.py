@@ -88,7 +88,8 @@ def init_agents():
     )
     return web_agent, finance_agent, final_agent
 
-
+def send_input():
+    st.session_state.send_input=True
 # --- 4. Get user inputs (tickers + custom query) from sidebar & main UI ---
 def get_user_inputs(companies: dict):
     st.sidebar.header("Select Companies")
@@ -144,11 +145,12 @@ def main():
     web_agent, finance_agent, final_agent = init_agents()
 
     # Page title
-    st.title("Stock Details & Custom Query")
+    st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
+    st.title("📊 Stock Insights & Real-Time Market Answers")
 
     # Inputs
     tickers_input, user_query = get_user_inputs(companies)
-    if st.button("Send"):
+    if st.button("Send") or send_input():
         # Validate tickers
         tickers = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]
         if not tickers:

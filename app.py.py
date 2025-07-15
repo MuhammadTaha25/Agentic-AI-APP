@@ -59,7 +59,7 @@ def init_agents():
 #     max_output_tokens=512,       # limit output
 #     temperature=0.7,
 # )
-    base_model = Agent(model=DeepSeekChat(), markdown=True)
+    base_model =DeepSeekChat()
     web_agent = Agent(
         name="Web Agent",
         role="Search the web for information",

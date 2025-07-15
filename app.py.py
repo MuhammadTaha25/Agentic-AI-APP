@@ -60,11 +60,10 @@ def init_agents():
 #     temperature=0.7,
 # )
     base_model = DeepSeekChat(
-    id="deepseek-v1",
-    name="DeepSeek",
-    # agar koi extra config argument ho, wahan fill karein
-    api_key="sk-3a29fbad61fc47379a9f989685efeb80"
-)
+        id="deepseek-v1",
+        name="DeepSeek"
+        # agar DeepSeekChat ko api_key ya koi config chahiye to yahan pass karo
+    )
 
     web_agent = Agent(
         name="Web Agent",

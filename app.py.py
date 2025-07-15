@@ -1,401 +1,594 @@
-# # import os
-# # from dotenv import load_dotenv
-# # import streamlit as st
-# # from phi.tools.duckduckgo import DuckDuckGo
-# # from phi.agent import Agent
-# # # from phi.model.openai import OpenAIChat
-# # from phi.tools.yfinance import YFinanceTools
-# # # from phi.model.google import Gemini
-# # # from phi.model.google import Gemini
-# # # from phi.model.deepseek import DeepSeekChat
-# # from phi.model.groq import Groq
-
-# # # import openai
-# # # # --- 1. Load configuration from .env ---
-# # def load_config():
-# #     # load_dotenv(os.getenv('DOTENV_PATH', '.env'))
-# #     # openai.api_key = st.secrets["OPENAI_API_KEY"]
-# #     st.set_page_config(page_title="Stock & Query App",)
-
-# # # --- 2. Define the pool of available companies ---
-# # def get_companies():
-# #     return {
-# #         'Apple Inc.': 'AAPL',
-# #         'Microsoft Corp.': 'MSFT',
-# #         'NVIDIA': 'NVDA',
-# #         'Tesla': 'TSLA',
-# #         'BlackRock': 'BLK',
-# #         'LVMH': 'MC.PA',
-# #         'Samsung Electronics': '005930.KS',
-# #         'Amazon': 'AMZN',
-# #         'Alphabet': 'GOOGL',
-# #         'Meta Platforms': 'META',
-# #         'Berkshire Hathaway': 'BRK.B',
-# #         'Visa': 'V',
-# #         'JPMorgan Chase': 'JPM',
-# #         'Johnson & Johnson': 'JNJ',
-# #         'UnitedHealth Group': 'UNH',
-# #         'Procter & Gamble': 'PG',
-# #         'Mastercard': 'MA',
-# #         'Eli Lilly': 'LLY',
-# #         'Home Depot': 'HD',
-# #         'Walmart': 'WMT',
-# #         'Bank of America': 'BAC',
-# #         'Disney': 'DIS',
-# #         'Intel': 'INTC',
-# #         'Oracle': 'ORCL'
-# #     }
-
-
-# # # --- 3. Initialize all three agents with shared model config ---
-# # def init_agents():
-# #     # base_model = OpenAIChat(id="gpt-3.5-turbo-1106")
-# # #     base_model = Gemini(
-# # #     id="gemini-1.5-flash",
-# # #     name="Gemini",
-# # #     provider="Google",
-# # api_key=*****
-# # #     max_output_tokens=512,       # limit output
-# # #     temperature=0.7,
-# # # )
-# #     # base_model = DeepSeekChat(
-# #     #     id="deepseek-v1",
-# #     #     name="DeepSeek"
-# #     #     # agar DeepSeekChat ko api_key ya koi config chahiye to yahan pass karo
-# #     # )
-# #     groq_key = st.secrets["GROQ_API_KEY"]
-
-# #     base_model=Groq(
-# #         id="llama-3.3-70b-versatile",
-# #         api_key=groq_key,
-# #         # temperature=0.7,           # optional
-# #         # max_output_tokens=1024,    # optional
-# #     )
-# #     web_agent = Agent(
-# #         name="Web Agent",
-# #         role="Search the web for information",
-# #         model=base_model,
-# #         tools=[DuckDuckGo()],
-# #         instructions=[
-# #             "Summarize and always include sources (links)",
-# #             "Provide precise and clear information on the topic"
-# #         ],
-# #         show_tools_calls=True,
-# #         markdown=True,
-# #     )
-# #     finance_agent = Agent(
-# #         name="Finance Agent",
-# #         model=base_model,
-# #         tools=[YFinanceTools(
-# #             stock_price=True,
-# #             analyst_recommendations=True,
-# #             stock_fundamentals=True,
-# #             company_news=True,
-# #         )],
-# #         instructions=[
-# #             "Use tables to display data, not text",
-# #             "Be concise and to the point ",
-# #             "Always include sources (links)",
-# #         ],
-# #         show_tools_calls=True,
-# #         markdown=True,
-# #     )
-# #     final_agent = Agent(
-# #         name="Final Answer Agent",
-# #         model=base_model,
-# #         instructions=[
-# #             "Summarize clearly and precisely",
-# #             "Always include sources (links)",
-# #             "Use tables to display data"
-# #         ],
-# #         markdown=True,
-# #     )
-# #     return web_agent, finance_agent, final_agent
-
-# # def send_input():
-# #     st.session_state.send_input=True
-# # # --- 4. Get user inputs (tickers + custom query) from sidebar & main UI ---
-# # def get_user_inputs(companies: dict):
-# #     st.sidebar.header("Select Companies")
-# #     # dynamic checkboxes
-# #     selected = [
-# #         ticker for name, ticker in companies.items()
-# #         if st.sidebar.checkbox(name, value=False)
-# #     ]
-
-# #     tickers_input = st.text_input(
-# #         "Tickers (comma-separated):",
-# #         value=", ".join(selected),
-# #         key="tickers_input"
-# #     )
-# #     user_query = st.text_input("Your Query:", key="user_query")
-# #     return tickers_input, user_query,  
-
-
-# # # --- 5. Query each agent and return their raw responses ---
-# # def fetch_agent_responses(tickers, combined_payload, web_agent, finance_agent):
-# #     # 5a. Web search
-# #     with st.spinner("🔎 Searching the web..."):
-# #         web_resp = web_agent.run(f"Explain {combined_payload} with web sources")
-# #     # 5b. Finance data
-# #     with st.spinner("💹 Fetching finance data..."):
-# #         finance_resp = finance_agent.run(f"Get financial details for {combined_payload}")
-# #     return web_resp, finance_resp
-
-
-# # # --- 6. Combine context & get final summarized answer ---
-# # def summarize_final_answer(combined_payload, web_resp, finance_resp, final_agent):
-# #     prompt = f"""
-# # User Query: {combined_payload}
-
-# # Web Information:
-# # {web_resp.get_content_as_string()}
-
-# # Finance Information:
-# # {finance_resp.get_content_as_string()}
-
-# # Now, based on this information, give a final summarized answer in a clear, friendly format.
-# # """
-# #     with st.spinner("✍️ Generating final answer..."):
-# #         final_resp = final_agent.run(prompt)
-# #     return final_resp.get_content_as_string()
-
-
-# # # --- 7. Main app flow ---
-# # def main():
-# #     # Load config & agents
-# #     load_config()
-# #     companies = get_companies()
-# #     web_agent, finance_agent, final_agent = init_agents()
-
-# #     # Page title
-# #     st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
-# #     st.title("📊 Stock Insights & Real-Time Market Answers")
-# #     chat_container = st.container()
-# #     if "messages" not in st.session_state:
-# #         st.session_state.messages = []
-# #     # Inputs
-# #     tickers_input, user_query = get_user_inputs(companies)
-# #     if st.button("Send") or send_input():
-# #         # Validate tickers
-# #         tickers = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]
-# #         if not tickers:
-# #             st.error("Please select or enter at least one ticker.")
-# #             return
-# #         if not user_query.strip():
-# #             st.error("Please enter your query.")
-# #             return
-
-# #         # Combine for consistent payload
-# #         combined = f"{tickers}.{user_query}"
-
-# #         # Fetch intermediate results
-# #         web_resp, finance_resp = fetch_agent_responses(tickers, combined, web_agent, finance_agent)
-
-# #         # Get final summary
-# #         final_answer = summarize_final_answer(combined, web_resp, finance_resp, final_agent)
-
-# #         # Display only the final result
-# #         st.markdown(final_answer)
-
-
-# # if __name__ == "__main__":
-# # #     main()
 # import os
 # from dotenv import load_dotenv
 # import streamlit as st
 # from phi.tools.duckduckgo import DuckDuckGo
 # from phi.agent import Agent
-# from phi.model.openai import OpenAIChat
+# # from phi.model.openai import OpenAIChat
 # from phi.tools.yfinance import YFinanceTools
+# # from phi.model.google import Gemini
+# # from phi.model.google import Gemini
+# # from phi.model.deepseek import DeepSeekChat
 # from phi.model.groq import Groq
-# import openai
 
-# # --- Config & Session Setup ---
+# # import openai
+# # # --- 1. Load configuration from .env ---
 # def load_config():
-#     load_dotenv(os.getenv('DOTENV_PATH', '.env'))
-#     openai.api_key = st.secrets["OPENAI_API_KEY"]
-#     st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
+#     # load_dotenv(os.getenv('DOTENV_PATH', '.env'))
+#     # openai.api_key = st.secrets["OPENAI_API_KEY"]
+#     st.set_page_config(page_title="Stock & Query App",)
 
-# def init_session():
-#     defaults = {
-#         'selected_companies': [], 'tickers_input': "", 'user_query': "",
-#         'last_response': None, 'input_key': 0
-#     }
-#     for k, v in defaults.items():
-#         if k not in st.session_state:
-#             st.session_state[k] = v
-
+# # --- 2. Define the pool of available companies ---
 # def get_companies():
 #     return {
-#         'Apple Inc.': 'AAPL', 'Microsoft Corp.': 'MSFT', 'NVIDIA': 'NVDA',
-#         'Tesla': 'TSLA', 'BlackRock': 'BLK', 'LVMH': 'MC.PA', 'Samsung Electronics': '005930.KS',
-#         'Amazon': 'AMZN', 'Alphabet': 'GOOGL', 'Meta Platforms': 'META',
-#         'Berkshire Hathaway': 'BRK.B', 'Visa': 'V', 'JPMorgan Chase': 'JPM',
-#         'Johnson & Johnson': 'JNJ', 'UnitedHealth Group': 'UNH', 'Procter & Gamble': 'PG',
-#         'Mastercard': 'MA', 'Eli Lilly': 'LLY', 'Home Depot': 'HD', 'Walmart': 'WMT',
-#         'Bank of America': 'BAC', 'Disney': 'DIS', 'Intel': 'INTC', 'Oracle': 'ORCL'
+#         'Apple Inc.': 'AAPL',
+#         'Microsoft Corp.': 'MSFT',
+#         'NVIDIA': 'NVDA',
+#         'Tesla': 'TSLA',
+#         'BlackRock': 'BLK',
+#         'LVMH': 'MC.PA',
+#         'Samsung Electronics': '005930.KS',
+#         'Amazon': 'AMZN',
+#         'Alphabet': 'GOOGL',
+#         'Meta Platforms': 'META',
+#         'Berkshire Hathaway': 'BRK.B',
+#         'Visa': 'V',
+#         'JPMorgan Chase': 'JPM',
+#         'Johnson & Johnson': 'JNJ',
+#         'UnitedHealth Group': 'UNH',
+#         'Procter & Gamble': 'PG',
+#         'Mastercard': 'MA',
+#         'Eli Lilly': 'LLY',
+#         'Home Depot': 'HD',
+#         'Walmart': 'WMT',
+#         'Bank of America': 'BAC',
+#         'Disney': 'DIS',
+#         'Intel': 'INTC',
+#         'Oracle': 'ORCL'
 #     }
 
-# # --- Agent Setup ---
+
+# # --- 3. Initialize all three agents with shared model config ---
 # def init_agents():
-#     model = Groq(id="llama-3.3-70b-versatile", api_key=st.secrets["GROQ_API_KEY"])
+#     # base_model = OpenAIChat(id="gpt-3.5-turbo-1106")
+# #     base_model = Gemini(
+# #     id="gemini-1.5-flash",
+# #     name="Gemini",
+# #     provider="Google",
+# api_key=*****
+# #     max_output_tokens=512,       # limit output
+# #     temperature=0.7,
+# # )
+#     # base_model = DeepSeekChat(
+#     #     id="deepseek-v1",
+#     #     name="DeepSeek"
+#     #     # agar DeepSeekChat ko api_key ya koi config chahiye to yahan pass karo
+#     # )
+#     groq_key = st.secrets["GROQ_API_KEY"]
 
+#     base_model=Groq(
+#         id="llama-3.3-70b-versatile",
+#         api_key=groq_key,
+#         # temperature=0.7,           # optional
+#         # max_output_tokens=1024,    # optional
+#     )
 #     web_agent = Agent(
-#         name="Web Agent", role="Search the web",
-#         model=model, tools=[DuckDuckGo()], markdown=True, show_tools_calls=True,
-#         instructions=["Summarize with sources"]
+#         name="Web Agent",
+#         role="Search the web for information",
+#         model=base_model,
+#         tools=[DuckDuckGo()],
+#         instructions=[
+#             "Summarize and always include sources (links)",
+#             "Provide precise and clear information on the topic"
+#         ],
+#         show_tools_calls=True,
+#         markdown=True,
 #     )
-
 #     finance_agent = Agent(
-#         name="Finance Agent", model=model, tools=[YFinanceTools(
-#             stock_price=True, analyst_recommendations=True,
-#             stock_fundamentals=True, company_news=True
-#         )], markdown=True, show_tools_calls=True,
-#         instructions=["Use tables, be concise, include sources"]
+#         name="Finance Agent",
+#         model=base_model,
+#         tools=[YFinanceTools(
+#             stock_price=True,
+#             analyst_recommendations=True,
+#             stock_fundamentals=True,
+#             company_news=True,
+#         )],
+#         instructions=[
+#             "Use tables to display data, not text",
+#             "Be concise and to the point ",
+#             "Always include sources (links)",
+#         ],
+#         show_tools_calls=True,
+#         markdown=True,
 #     )
-
 #     final_agent = Agent(
-#         name="Final Agent", model=model, markdown=True,
-#         instructions=["Summarize with sources, use tables"]
+#         name="Final Answer Agent",
+#         model=base_model,
+#         instructions=[
+#             "Summarize clearly and precisely",
+#             "Always include sources (links)",
+#             "Use tables to display data"
+#         ],
+#         markdown=True,
 #     )
-
 #     return web_agent, finance_agent, final_agent
 
-# # --- Reset UI ---
-# def reset_inputs():
-#     for key in ['selected_companies', 'tickers_input', 'user_query']:
-#         st.session_state[key] = "" if isinstance(st.session_state[key], str) else []
-#     st.session_state.input_key += 1
-
-# # --- Final Answer Logic ---
-# def summarize_final_answer(query, web_resp, finance_resp, agent):
-#     prompt = f"""
-# User Query:\n{query}
-# \nWeb Info:\n{web_resp.get_content_as_string()}
-# \nFinance Info:\n{finance_resp.get_content_as_string()}
-# \nInstructions:
-# - Clear summary with sources
-# - Use tables for financial data
-# - Don't skip details due to length
-# """
-#     with st.spinner("✍️ Generating summary..."):
-#         return agent.run(prompt).get_content_as_string()
-
-# # --- UI ---
-# def sidebar_ui(companies):
+# def send_input():
+#     st.session_state.send_input=True
+# # --- 4. Get user inputs (tickers + custom query) from sidebar & main UI ---
+# def get_user_inputs(companies: dict):
 #     st.sidebar.header("Select Companies")
-#     for name in companies:
-#         key = f"company_{name}_{st.session_state.input_key}"
-#         if st.sidebar.checkbox(name, value=(name in st.session_state.selected_companies), key=key):
-#             if name not in st.session_state.selected_companies:
-#                 st.session_state.selected_companies.append(name)
-#         else:
-#             if name in st.session_state.selected_companies:
-#                 st.session_state.selected_companies.remove(name)
+#     # dynamic checkboxes
+#     selected = [
+#         ticker for name, ticker in companies.items()
+#         if st.sidebar.checkbox(name, value=False)
+#     ]
 
-#     tickers = st.sidebar.text_input(
-#         "OR enter tickers (comma-separated):",
-#         value=st.session_state.tickers_input,
-#         key=f"tickers_input_{st.session_state.input_key}"
+#     tickers_input = st.text_input(
+#         "Tickers (comma-separated):",
+#         value=", ".join(selected),
+#         key="tickers_input"
 #     )
-#     st.session_state.tickers_input = tickers
+#     user_query = st.text_input("Your Query:", key="user_query")
+#     return tickers_input, user_query,  
 
-#     selected = [companies[n] for n in st.session_state.selected_companies]
-#     custom = [t.strip().upper() for t in tickers.split(",") if t.strip()]
-#     all_tickers = list(set(selected + custom))
 
-#     st.sidebar.subheader("Current Tickers")
-#     if all_tickers:
-#         st.sidebar.write(", ".join(all_tickers))
-#     else:
-#         st.sidebar.warning("No tickers selected")
+# # --- 5. Query each agent and return their raw responses ---
+# def fetch_agent_responses(tickers, combined_payload, web_agent, finance_agent):
+#     # 5a. Web search
+#     with st.spinner("🔎 Searching the web..."):
+#         web_resp = web_agent.run(f"Explain {combined_payload} with web sources")
+#     # 5b. Finance data
+#     with st.spinner("💹 Fetching finance data..."):
+#         finance_resp = finance_agent.run(f"Get financial details for {combined_payload}")
+#     return web_resp, finance_resp
 
-#     if st.sidebar.button("Clear Inputs"):
-#         reset_inputs()
-#         st.session_state.last_response = None
-#         st.rerun()
 
-#     return all_tickers
+# # --- 6. Combine context & get final summarized answer ---
+# def summarize_final_answer(combined_payload, web_resp, finance_resp, final_agent):
+#     prompt = f"""
+# User Query: {combined_payload}
 
+# Web Information:
+# {web_resp.get_content_as_string()}
+
+# Finance Information:
+# {finance_resp.get_content_as_string()}
+
+# Now, based on this information, give a final summarized answer in a clear, friendly format.
+# """
+#     with st.spinner("✍️ Generating final answer..."):
+#         final_resp = final_agent.run(prompt)
+#     return final_resp.get_content_as_string()
+
+
+# # --- 7. Main app flow ---
 # def main():
+#     # Load config & agents
 #     load_config()
-#     init_session()
 #     companies = get_companies()
 #     web_agent, finance_agent, final_agent = init_agents()
 
-#     st.title("📊 Stock Insights & Market Answers")
-#     all_tickers = sidebar_ui(companies)
-
-#     user_query = st.text_input(
-#         "Enter your question:", value=st.session_state.user_query,
-#         key=f"query_input_{st.session_state.input_key}"
-#     )
-#     st.session_state.user_query = user_query
-
-#     if st.button("Submit", key=f"submit_{st.session_state.input_key}"):
-#         if not all_tickers:
-#             st.error("Select or enter at least one ticker.")
+#     # Page title
+#     st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
+#     st.title("📊 Stock Insights & Real-Time Market Answers")
+#     chat_container = st.container()
+#     if "messages" not in st.session_state:
+#         st.session_state.messages = []
+#     # Inputs
+#     tickers_input, user_query = get_user_inputs(companies)
+#     if st.button("Send") or send_input():
+#         # Validate tickers
+#         tickers = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]
+#         if not tickers:
+#             st.error("Please select or enter at least one ticker.")
 #             return
 #         if not user_query.strip():
-#             st.error("Enter your query.")
+#             st.error("Please enter your query.")
 #             return
 
-#         combined = f"{', '.join(all_tickers)} - {user_query}"
-#         with st.spinner("🔍 Searching web..."):
+#         # Combine for consistent payload
+#         combined = f"{tickers}.{user_query}"
+
+#         # Fetch intermediate results
+#         web_resp, finance_resp = fetch_agent_responses(tickers, combined, web_agent, finance_agent)
+
+#         # Get final summary
+#         final_answer = summarize_final_answer(combined, web_resp, finance_resp, final_agent)
+
+#         # Display only the final result
+#         st.markdown(final_answer)
+
+
+# if __name__ == "__main__":
+# #     main()
+import os
+from dotenv import load_dotenv
+import streamlit as st
+from phi.tools.duckduckgo import DuckDuckGo
+from phi.agent import Agent
+from phi.model.openai import OpenAIChat
+from phi.tools.yfinance import YFinanceTools
+import openai
+from phi.model.groq import Groq
+# --- 1. Load configuration ---
+def load_config():
+    load_dotenv(os.getenv('DOTENV_PATH', '.env'))
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
+    st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
+
+# --- 2. Define available companies ---
+def get_companies():
+    return {
+        'Apple Inc.': 'AAPL',
+        'Microsoft Corp.': 'MSFT',
+        'NVIDIA': 'NVDA',
+        'Tesla': 'TSLA',
+        'BlackRock': 'BLK',
+        'LVMH': 'MC.PA',
+        'Samsung Electronics': '005930.KS',
+        'Amazon': 'AMZN',
+        'Alphabet': 'GOOGL',
+        'Meta Platforms': 'META',
+        'Berkshire Hathaway': 'BRK.B',
+        'Visa': 'V',
+        'JPMorgan Chase': 'JPM',
+        'Johnson & Johnson': 'JNJ',
+        'UnitedHealth Group': 'UNH',
+        'Procter & Gamble': 'PG',
+        'Mastercard': 'MA',
+        'Eli Lilly': 'LLY',
+        'Home Depot': 'HD',
+        'Walmart': 'WMT',
+        'Bank of America': 'BAC',
+        'Disney': 'DIS',
+        'Intel': 'INTC',
+        'Oracle': 'ORCL'
+    }
+
+--- 3. Initialize agents ---
+def init_agents():
+    
+    groq_key = st.secrets["GROQ_API_KEY"]      
+    
+    base_model=Groq(id="llama-3.3-70b-versatile",
+                api_key=groq_key,         # temperature=0.7,           # optional     
+                # max_output_tokens=1024,    # optional  
+               )
+    web_agent = Agent(
+        name="Web Agent",
+        role="Search the web for information",
+        model=base_model,
+        tools=[DuckDuckGo()],
+        instructions=[
+            "Summarize and always include sources (links)",
+            "Provide precise and clear information on the topic"
+        ],
+        show_tools_calls=True,
+        markdown=True,
+    )
+    finance_agent = Agent(
+        name="Finance Agent",
+        model=base_model,
+        tools=[YFinanceTools(
+            stock_price=True,
+            analyst_recommendations=True,
+            stock_fundamentals=True,
+            company_news=True,
+        )],
+        instructions=[
+            "Use tables to display data, not text",
+            "Be concise and to the point ",
+            "Always include sources (links)",
+        ],
+        show_tools_calls=True,
+        markdown=True,
+    )
+    final_agent = Agent(
+        name="Final Answer Agent",
+        model=base_model,
+        instructions=[
+            "Summarize clearly and precisely",
+            "Always include sources (links)",
+            "Use tables to display data"
+        ],
+        markdown=True,
+    )
+    return web_agent, finance_agent, final_agent
+
+# --- 4. Reset all inputs ---
+def reset_inputs():
+    st.session_state.selected_companies = []
+    st.session_state.tickers_input = ""
+    st.session_state.user_query = ""
+    st.session_state.input_key += 1  # Force UI refresh
+
+# --- 5. Main app flow ---
+def main():
+    # Initialize session state
+    if 'selected_companies' not in st.session_state:
+        st.session_state.selected_companies = []
+    if 'tickers_input' not in st.session_state:
+        st.session_state.tickers_input = ""
+    if 'user_query' not in st.session_state:
+        st.session_state.user_query = ""
+    if 'last_response' not in st.session_state:
+        st.session_state.last_response = None
+    if 'input_key' not in st.session_state:
+        st.session_state.input_key = 0
+
+    # Load config
+    load_config()
+    
+    # Page title
+    st.title("📊 Stock Insights & Real-Time Market Answers")
+    
+    # Initialize agents
+    companies = get_companies()
+    web_agent, finance_agent, final_agent = init_agents()
+
+    # --- Sidebar: Company Selection ---
+    st.sidebar.header("Select Companies")
+    
+    # 1. COMPANY SELECTION (Checkbox approach)
+    st.sidebar.subheader("Select from popular companies:")
+    selected_from_list = []
+    for name in companies:
+        # Create a unique key using input_key to force refresh
+        key = f"company_{name}_{st.session_state.input_key}"
+        if st.sidebar.checkbox(name, value=(name in st.session_state.selected_companies), key=key):
+            if name not in st.session_state.selected_companies:
+                st.session_state.selected_companies.append(name)
+        else:
+            if name in st.session_state.selected_companies:
+                st.session_state.selected_companies.remove(name)
+    
+    # 2. MANUAL TICKER INPUT
+    st.sidebar.subheader("OR Enter Tickers Manually")
+    # Create a unique key using input_key to force refresh
+    tickers_input = st.sidebar.text_input(
+        "Tickers (comma separated):", 
+        value=st.session_state.tickers_input,
+        key=f"tickers_input_{st.session_state.input_key}"
+    )
+    if tickers_input != st.session_state.tickers_input:
+        st.session_state.tickers_input = tickers_input
+    
+    # Combine selected and custom tickers
+    selected_tickers = [companies[name] for name in st.session_state.selected_companies]
+    custom_tickers_list = [t.strip().upper() for t in st.session_state.tickers_input.split(",") if t.strip()]
+    all_tickers = list(set(selected_tickers + custom_tickers_list))
+    
+    # Display current selection
+    st.sidebar.subheader("Current Tickers")
+    if all_tickers:
+        st.sidebar.write(", ".join(all_tickers))
+    else:
+        st.sidebar.warning("No tickers selected")
+    
+    # Clear button in sidebar
+    if st.sidebar.button("Clear All Inputs"):
+        reset_inputs()
+        st.session_state.last_response = None
+        st.rerun()
+    
+    # --- Main Area: Query Input ---
+    st.subheader("Ask a Question")
+    # Create a unique key using input_key to force refresh
+    user_query = st.text_input(
+        "Enter your question about the selected companies:", 
+        value=st.session_state.user_query,
+        key=f"query_input_{st.session_state.input_key}"
+    )
+    if user_query != st.session_state.user_query:
+        st.session_state.user_query = user_query
+    
+    # Submit button
+    if st.button("Submit Query", key=f"submit_{st.session_state.input_key}"):
+        # Validate inputs
+        if not all_tickers:
+            st.error("Please select at least one company or enter a ticker.")
+            return
+            
+        if not st.session_state.user_query.strip():
+            st.error("Please enter your query.")
+            return
+        
+        # Combine for consistent payload
+        combined = f"{', '.join(all_tickers)} - {st.session_state.user_query}"
+        
+        # Fetch agent responses
+        with st.spinner("🔍 Processing your query..."):
+            # Web search
+            web_resp = web_agent.run(f"Explain {combined} with web sources")
+        with st.spinner("💹 Fetching finance data..."):
+            # Finance data
+            finance_resp = finance_agent.run(f"Get financial details for {combined}")
+            # Get final summary
+        final_answer = summarize_final_answer(combined, web_resp, finance_resp, final_agent)
+        
+        st.session_state.last_response = final_answer
+        
+        # Reset inputs after successful response
+        reset_inputs()
+        st.rerun()
+    
+    # Display last response
+    if st.session_state.last_response:
+        st.subheader("Latest Response")
+        st.markdown(st.session_state.last_response, unsafe_allow_html=True)
+
+# --- 6. Generate final answer ---
+def summarize_final_answer(combined_payload, web_resp, finance_resp, final_agent):
+    prompt = f"""
+## User Query: 
+{combined_payload}
+
+## Web Information:
+{web_resp.get_content_as_string()}
+
+## Finance Information:
+{finance_resp.get_content_as_string()}
+
+## Instructions:
+Based on the information above, provide a final summarized answer that:
+- Is clear, precise, and well-structured
+- Includes relevant sources links not code functions
+- Uses tables for financial data presentation
+- Addresses all aspects of the user's query
+- write complete message don't skip response due to length response
+"""
+    with st.spinner("✍️ Generating final answer..."):
+        final_resp = final_agent.run(prompt)
+    return final_resp.get_content_as_string()
+
+if __name__ == "__main__":
+    main()
+
+# import os
+# from dotenv import load_dotenv
+# import streamlit as st
+# from phi.tools.duckduckgo import DuckDuckGo
+# from phi.agent import Agent
+# from phi.tools.yfinance import YFinanceTools
+# from phi.model.groq import Groq
+
+# # --- 1. Load configuration ---
+# def load_config():
+#     # Load Streamlit secrets for API keys
+#     st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
+
+# # --- 2. Define available companies ---
+# def get_companies():
+#     return {
+#         'Apple Inc.': 'AAPL',
+#         'Microsoft Corp.': 'MSFT',
+#         'NVIDIA': 'NVDA',
+#         'Tesla': 'TSLA',
+#         'BlackRock': 'BLK',
+#         'LVMH': 'MC.PA',
+#         'Samsung Electronics': '005930.KS',
+#         'Amazon': 'AMZN',
+#         'Alphabet': 'GOOGL',
+#         'Meta Platforms': 'META',
+#         'Berkshire Hathaway': 'BRK.B',
+#         'Visa': 'V',
+#         'JPMorgan Chase': 'JPM',
+#         'Johnson & Johnson': 'JNJ',
+#         'UnitedHealth Group': 'UNH',
+#         'Procter & Gamble': 'PG',
+#         'Mastercard': 'MA',
+#         'Eli Lilly': 'LLY',
+#         'Home Depot': 'HD',
+#         'Walmart': 'WMT',
+#         'Bank of America': 'BAC',
+#         'Disney': 'DIS',
+#         'Intel': 'INTC',
+#         'Oracle': 'ORCL'
+#     }
+
+# # --- 3. Initialize agents ---
+# def init_agents():
+#     groq_key = st.secrets["GROQ_API_KEY"]
+#     base_model = Groq(
+#         id="llama-3.3-70b-versatile",
+#         api_key=groq_key
+#     )
+#     web_agent = Agent(
+#         name="Web Agent",
+#         role="Search the web for information",
+#         model=base_model,
+#         tools=[DuckDuckGo()],
+#         instructions=[
+#             "Summarize and always include sources (links)",
+#             "Provide precise and clear information on the topic"
+#         ],
+#         show_tools_calls=True,
+#         markdown=True,
+#     )
+#     finance_agent = Agent(
+#         name="Finance Agent",
+#         model=base_model,
+#         tools=[YFinanceTools(
+#             stock_price=True,
+#             analyst_recommendations=True,
+#             stock_fundamentals=True,
+#             company_news=True,
+#         )],
+#         instructions=[
+#             "Use tables to display data, not text",
+#             "Be concise and to the point",
+#             "Always include sources (links)",
+#         ],
+#         show_tools_calls=True,
+#         markdown=True,
+#     )
+#     final_agent = Agent(
+#         name="Final Answer Agent",
+#         model=base_model,
+#         instructions=[
+#             "Summarize clearly and precisely",
+#             "Always include sources (links)",
+#             "Use tables to display data"
+#         ],
+#         markdown=True,
+#     )
+#     return web_agent, finance_agent, final_agent
+
+# # --- Main app flow ---
+# def main():
+#     load_config()
+#     companies = get_companies()
+#     web_agent, finance_agent, final_agent = init_agents()
+
+#     st.title("📊 Stock Insights & Real-Time Market Answers")
+
+#     # 1. Company toggles
+#     st.subheader("Select Companies:")
+#     selected = []
+#     cols = st.columns(4)
+#     for idx, (name, ticker) in enumerate(companies.items()):
+#         if cols[idx % 4].checkbox(name):
+#             selected.append(ticker)
+
+#     # 2. Query input
+#     query = st.text_input("Enter your query:")
+
+#     # Submit
+#     if st.button("Submit"):
+#         if not selected:
+#             st.error("Please select at least one company.")
+#             return
+#         if not query.strip():
+#             st.error("Please enter a question.")
+#             return
+
+#         combined = f"{', '.join(selected)} - {query}"
+#         with st.spinner("🔍 Processing..."):
 #             web_resp = web_agent.run(f"Explain {combined} with web sources")
-#         with st.spinner("💹 Fetching financial data..."):
-#             fin_resp = finance_agent.run(f"Get financial details for {combined}")
-#         final = summarize_final_answer(combined, web_resp, fin_resp, final_agent)
+#             finance_resp = finance_agent.run(f"Get financial details for {combined}")
+#             final_answer = summarize(combined, web_resp, finance_resp, final_agent)
 
-#         st.session_state.last_response = final
-#         reset_inputs()
-#         st.rerun()
+#         st.markdown(final_answer, unsafe_allow_html=True)
 
-#     if st.session_state.last_response:
-#         st.subheader("Latest Response")
-#         st.markdown(st.session_state.last_response, unsafe_allow_html=True)
+#         # clear inputs
+#         st.experimental_rerun()
+
+# # --- Summarize final answer ---
+# def summarize(combined_payload, web_resp, finance_resp, final_agent):
+#     prompt = f"""
+# User Query: {combined_payload}
+
+# Web Information:
+# {web_resp.get_content_as_string()}
+
+# Finance Information:
+# {finance_resp.get_content_as_string()}
+
+# Based on the above, provide a clear, concise summary with sources and tables for finance data.
+# """
+#     resp = final_agent.run(prompt)
+#     return resp.get_content_as_string()
 
 # if __name__ == "__main__":
 #     main()
 
-# #     main()
-
-# Groq BadRequestError Troubleshooting Checklist
-
-# 1. Check GROQ model ID
-# Must match a valid one (check dashboard or documentation)
-model = Groq(
-    id="llama-3-70b-8192",  # ✅ Try a known-valid model ID instead of 'llama-3.3-70b-versatile'
-    api_key=st.secrets["GROQ_API_KEY"]
-)
-
-# 2. Check for unsupported instructions or malformed input
-# Try trimming the prompt to see if issue is token size or structure
-
-# 3. Use try-except around agent.run to inspect errors
-try:
-    final = summarize_final_answer(combined, web_resp, fin_resp, final_agent)
-except Exception as e:
-    st.error(f"GROQ Error: {e}")
-    st.stop()
-
-# 4. Print input prompt to debug token count / content
-prompt = f"""
-User Query: {combined}
-
-Web Info: {web_resp.get_content_as_string()}
-
-Finance Info: {fin_resp.get_content_as_string()}
-
-Instructions:
-- Clear summary with sources
-- Use tables for financial data
-- Don't skip details due to length
-"""
-
-# Use len(prompt.split()) to estimate tokens
-st.write(f"🔍 Prompt token estimate: {len(prompt.split())}")
-
-# Optional: Check with shorter dummy prompt to isolate issue
-# final = final_agent.run("Summarize NVIDIA and Tesla stock news")

@@ -11,8 +11,8 @@ from phi.model.google import Gemini
 import openai
 # --- 1. Load configuration from .env ---
 def load_config():
-    load_dotenv(os.getenv('DOTENV_PATH', '.env'))
-    openai.api_key = st.secrets["OPENAI_API_KEY"]
+    # load_dotenv(os.getenv('DOTENV_PATH', '.env'))
+    # openai.api_key = st.secrets["OPENAI_API_KEY"]
     
     st.set_page_config(page_title="Stock & Query App", layout="wide")
 

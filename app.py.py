@@ -51,16 +51,16 @@ def get_companies():
 # --- 3. Initialize all three agents with shared model config ---
 def init_agents():
     # base_model = OpenAIChat(id="gpt-3.5-turbo-1106")sk-3a29fbad61fc47379a9f989685efeb80
-    base_model = Gemini(
-    id="gemini-1.5-flash",
-    name="Gemini",
-    provider="Google",
-    api_key="AIzaSyDp1vfHrpcVW9PdBmj0pSIMyab9smpVmSs",
-    max_output_tokens=512,       # limit output
-    temperature=0.7,
-)
-agent = Agent(model=DeepSeekChat(), markdown=True)
-web_agent = Agent(
+#     base_model = Gemini(
+#     id="gemini-1.5-flash",
+#     name="Gemini",
+#     provider="Google",
+#     api_key="AIzaSyDp1vfHrpcVW9PdBmj0pSIMyab9smpVmSs",
+#     max_output_tokens=512,       # limit output
+#     temperature=0.7,
+# )
+    base_model = Agent(model=DeepSeekChat(), markdown=True)
+    web_agent = Agent(
         name="Web Agent",
         role="Search the web for information",
         model=base_model,

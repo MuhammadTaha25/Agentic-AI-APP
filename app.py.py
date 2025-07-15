@@ -109,7 +109,7 @@ def get_user_inputs(companies: dict):
     voice_recording=speech_to_text(language="en",use_container_width=True,just_once=True,key="STT")
     
     if voice_recording:
-    user_query=voice_recording
+        user_query=voice_recording
     return tickers_input, user_query
 
 

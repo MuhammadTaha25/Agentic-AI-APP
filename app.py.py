@@ -67,7 +67,7 @@ def init_agents():
     groq_key = st.secrets["GROQ_API_KEY"]
 
     base_model=Groq(
-        id="llama-3.1-8b-instant",
+        id="llama-3.3-70b-versatile",
         api_key=groq_key,
         # temperature=0.7,           # optional
         # max_output_tokens=1024,    # optional

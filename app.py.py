@@ -5,11 +5,15 @@ from phi.tools.duckduckgo import DuckDuckGo
 from phi.agent import Agent
 from phi.model.openai import OpenAIChat
 from phi.tools.yfinance import YFinanceTools
+from phi.model.google import Gemini
+from phi.model.google import Gemini
+
 import openai
 # --- 1. Load configuration from .env ---
 def load_config():
     load_dotenv(os.getenv('DOTENV_PATH', '.env'))
     openai.api_key = st.secrets["OPENAI_API_KEY"]
+    
     st.set_page_config(page_title="Stock & Query App", layout="wide")
 
 
@@ -45,7 +49,12 @@ def get_companies():
 
 # --- 3. Initialize all three agents with shared model config ---
 def init_agents():
-    base_model = OpenAIChat(id="gpt-3.5-turbo-1106")
+    # base_model = OpenAIChat(id="gpt-3.5-turbo-1106")
+    base_model=Gemini(id="gemini-1.5-flash",
+                      name="Gemini"",
+                      provider="Google",api_key="AIzaSyDp1vfHrpcVW9PdBmj0pSIMyab9smpVmSs"
+                     ),
+
     web_agent = Agent(
         name="Web Agent",
         role="Search the web for information",

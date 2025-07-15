@@ -404,7 +404,7 @@ def main():
             # Finance data
             finance_resp = finance_agent.run(f"Get financial details for {combined}")
             # Get final summary
-            final_answer = summarize_final_answer(combined, web_resp, finance_resp, final_agent)
+        final_answer = summarize_final_answer(combined, web_resp, finance_resp, final_agent)
         
         st.session_state.last_response = final_answer
         

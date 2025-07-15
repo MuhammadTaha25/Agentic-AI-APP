@@ -3,14 +3,14 @@ from dotenv import load_dotenv
 import streamlit as st
 from phi.tools.duckduckgo import DuckDuckGo
 from phi.agent import Agent
-# from phi.model.openai import OpenAIChat
+from phi.model.openai import OpenAIChat
 from phi.tools.yfinance import YFinanceTools
 # from phi.model.google import Gemini
 # from phi.model.google import Gemini
 # from phi.model.deepseek import DeepSeekChat
 from phi.model.groq import Groq
 
-# import openai
+import openai
 # # --- 1. Load configuration from .env ---
 def load_config():
     # load_dotenv(os.getenv('DOTENV_PATH', '.env'))

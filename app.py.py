@@ -156,7 +156,7 @@ def main():
         st.session_state.messages = []
     # Inputs
     tickers_input, user_query ,voice_recordings= get_user_inputs(companies)
-    if (st.button("Send") or send_input()) or voice_recording:
+    if (st.button("Send") or send_input()) or voice_recordings:
         # Validate tickers
         tickers = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]
         if not tickers:

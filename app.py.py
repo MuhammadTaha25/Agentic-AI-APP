@@ -400,6 +400,7 @@ def main():
         with st.spinner("🔍 Processing your query..."):
             # Web search
             web_resp = web_agent.run(f"Explain {combined} with web sources")
+        with st.spinner("💹 Fetching finance data...")
             # Finance data
             finance_resp = finance_agent.run(f"Get financial details for {combined}")
             # Get final summary
@@ -431,9 +432,10 @@ def summarize_final_answer(combined_payload, web_resp, finance_resp, final_agent
 ## Instructions:
 Based on the information above, provide a final summarized answer that:
 - Is clear, precise, and well-structured
-- Includes relevant sources (links)
+- Includes relevant sources links not code functions
 - Uses tables for financial data presentation
 - Addresses all aspects of the user's query
+- write complete message don't skip response due to length response
 """
     with st.spinner("✍️ Generating final answer..."):
         final_resp = final_agent.run(prompt)

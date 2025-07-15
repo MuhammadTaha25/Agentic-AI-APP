@@ -54,7 +54,7 @@
 # #     id="gemini-1.5-flash",
 # #     name="Gemini",
 # #     provider="Google",
-# #     api_key="AIzaSyDp1vfHrpcVW9PdBmj0pSIMyab9smpVmSs",
+,
 # #     max_output_tokens=512,       # limit output
 # #     temperature=0.7,
 # # )

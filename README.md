@@ -1,93 +1,107 @@
-# Stock & Query App
+# 📊 MarketBot - AI-Powered Stock & News Insights
 
-This Streamlit-based application allows users to fetch web information and financial data for selected companies, then combines and summarizes the results using OpenAI's GPT-3.5 model.
+![Python](https://img.shields.io/badge/python-3.10%2B-blue) ![Streamlit](https://img.shields.io/badge/streamlit-%E2%9C%93-brightgreen) ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
----
-
-## Features
-
-* **Web Search Agent**: Queries the web via DuckDuckGo for context and sources.
-* **Finance Agent**: Retrieves stock prices, fundamentals, analyst recommendations, and company news using YFinance tools, displayed in tables.
-* **Final Summarizer**: Merges web and finance data into a concise final answer.
-* **Modular Structure**: Organized into separate modules for configuration, agents, inputs, processing, and the main app.
+MarketBot is a modern **Streamlit** web application that leverages **Phi SDK** and **Groq’s LLaMA 3** model to deliver real-time financial data and curated web search insights. Get concise, data-driven answers to your stock market questions across top global companies.
 
 ---
 
-## File Structure
+## 🚀 Key Features
 
-```bash
-├── config.py          # Load .env settings & company list
-├── agents.py          # Initializes web, finance, and final GPT agents
-├── inputs.py          # Streamlit UI input functions
-├── processing.py      # Agent calls and summarization logic
-├── app.py             # Main Streamlit application runner
-├── .env               # Environment variables (OPENAI_API_KEY)
-└── README.md          # Project documentation
-```
+- **Real-Time Finance**: Live stock prices, company fundamentals, analyst ratings, and news (via YFinanceTools).
+- **Web Summaries**: DuckDuckGo-powered searches with source citations.
+- **Multi-Agent Architecture**: Separate agents for web search, financial data, and final summarization.
+- **Flexible Input**: Select companies via checkboxes or enter tickers manually.
+- **Structured Output**: Markdown formatting and tables for clarity.
+- **Streamlined UI**: Sidebar-driven controls with dynamic input clearing.
 
 ---
 
-## Prerequisites
+## 🛠️ Tech Stack
 
-* Python 3.8+
-* A valid OpenAI API key
-* Internet connection for web search and stock data
+| Component         | Technology                    |
+| ----------------- | ----------------------------- |
+| Frontend          | Streamlit                     |
+| Agents & Tools    | Phi SDK, DuckDuckGo, YFinanceTools |
+| LLM               | Groq LLaMA 3.3 (70B Versatile) |
+| Language          | Python 3.10+                  |
 
 ---
 
-## Installation
+## 📦 Installation & Setup
 
-1. Clone this repository:
-
+1. **Clone repository**
    ```bash
-   git clone <repo-url>
-   cd <repo-directory>
+   git clone https://github.com/your-username/marketbot.git
+   cd marketbot
    ```
-
-2. Create and activate a virtual environment:
-
+2. **Create virtual environment**
    ```bash
    python -m venv venv
-   source venv/bin/activate   # macOS/Linux
-   venv\Scripts\activate      # Windows
+   source venv/bin/activate  # Windows: venv\Scripts\activate
    ```
-
-3. Install dependencies:
-
+3. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
-
-4. Create a `.env` file at the project root and add your OpenAI key:
-
-   ```env
-   OPENAI_API_KEY=sk-...
-   ```
+4. **Configure secrets**
+   - Create `~/.streamlit/secrets.toml`:
+     ```toml
+     OPENAI_API_KEY = "<your_openai_api_key>"
+     GROQ_API_KEY      = "<your_groq_api_key>"
+     ```
+   - Or use a `.env` file for local testing:
+     ```ini
+     DOTENV_PATH=.env
+     ```
 
 ---
 
-## Usage
-
-Run the Streamlit app:
+## ▶️ Running the App
 
 ```bash
 streamlit run app.py
 ```
 
-1. In the sidebar, select companies or enter tickers manually.
-2. Enter your custom query in the input box.
-3. Click **Send** to fetch web and finance data.
-4. View the combined summary in the main panel.
+Open [http://localhost:8501](http://localhost:8501) in your browser.
 
 ---
 
-## Customization
+## 🧠 How It Works
 
-* **Add/Remove Companies**: Modify the `get_companies()` dictionary in `config.py`.
-* **Adjust Agent Settings**: Tweak instructions or tools in `init_agents()` within `agents.py`.
+1. **Initialization**: Load API keys and configure Groq model.
+2. **Company Selection**: Choose from popular tickers or enter custom ones.
+3. **User Query**: Provide a question in the main panel.
+4. **Web Agent**: Fetch and summarize search results with citations.
+5. **Finance Agent**: Retrieve and tabulate live financial data.
+6. **Final Agent**: Combine insights into a concise, well-structured markdown summary.
 
 ---
 
-## License
+## 🎯 Use Cases
 
-This project is licensed under the MIT License. Feel free to fork and modify!
+- Compare stock performance (e.g., Apple vs NVIDIA).
+- Latest news on leading companies (e.g., Tesla updates).
+- Investment guidance based on fundamentals and market sentiment.
+
+---
+
+## 🔧 Roadmap
+
+- [ ] Interactive chart visualizations
+- [ ] Multi-company comparative reports
+- [ ] Deployment to Streamlit Cloud or Docker container
+- [ ] CI/CD integration and automated tests
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+
+---
+
+## 🙋‍♂️ Contributing & Support
+
+Feel free to open issues or submit pull requests. For questions or feedback, reach out at **your.email@example.com**.
+

@@ -12,12 +12,6 @@ from phi.model.groq import Groq
 
 import openai
 # # --- 1. Load configuration from .env ---
-def load_config():
-    # load_dotenv(os.getenv('DOTENV_PATH', '.env'))
-    openai.api_key = st.secrets["OPENAI_API_KEY"]
-    st.set_page_config(page_title="Stock & Query App",)
-
-# --- 2. Define the pool of available companies ---
 companies={
         'Apple Inc.': 'AAPL',
         'Microsoft Corp.': 'MSFT',
@@ -45,7 +39,12 @@ companies={
         'Oracle': 'ORCL'
     }
 
+def load_config():
+    # load_dotenv(os.getenv('DOTENV_PATH', '.env'))
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
+    st.set_page_config(page_title="Stock & Query App",)
 
+# --- 2. Define the pool of available companies ---
 # --- 3. Initialize all three agents with shared model config ---
 def init_agents():
     base_model = OpenAIChat(id="gpt-3.5-turbo-0125",stream=True,)
@@ -164,7 +163,7 @@ Now, based on this information, give a final summarized answer in a clear, frien
 def main():
     # Load config & agents
     load_config()
-    companies = get_companies()
+    companies = companies
     web_agent, finance_agent, final_agent = init_agents()
 
     # Page title

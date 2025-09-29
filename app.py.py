@@ -191,10 +191,12 @@ def main():
     }
 
     web_agent, finance_agent, final_agent = init_agents()
+    
 
     # Page title
     st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
     st.title("📊 Stock Insights & Real-Time Market Answers")
+    st.write("Selected tickers:", selected)
     chat_container = st.container()
     if "messages" not in st.session_state:
         st.session_state.messages = []

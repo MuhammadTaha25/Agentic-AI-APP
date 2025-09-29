@@ -149,7 +149,7 @@ Now, based on this information, give a final summarized answer in a clear, frien
 def main():
     # Load config & agents
     load_config()
-    companies = get_companies()
+    companies = companies
     web_agent, finance_agent, final_agent = init_agents()
 
     # Page title

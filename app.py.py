@@ -18,8 +18,7 @@ def load_config():
     st.set_page_config(page_title="Stock & Query App",)
 
 # --- 2. Define the pool of available companies ---
-def get_companies():
-    return {
+companies={
         'Apple Inc.': 'AAPL',
         'Microsoft Corp.': 'MSFT',
         'NVIDIA': 'NVDA',

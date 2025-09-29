@@ -108,7 +108,7 @@ def get_user_inputs(companies: dict):
     # show text_input using selected tickers as default value
     tickers_input = st.text_input(
         "Tickers (comma-separated):",
-        value=tickers_default,
+        value="hallo",
         key="tickers_input"
     )
 

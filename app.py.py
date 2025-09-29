@@ -5,14 +5,18 @@ from phi.tools.duckduckgo import DuckDuckGo
 from phi.agent import Agent
 from phi.model.openai import OpenAIChat
 from phi.tools.yfinance import YFinanceTools
-# from phi.model.google import Gemini
-# from phi.model.google import Gemini
-# from phi.model.deepseek import DeepSeekChat
-from phi.model.groq import Groq
-
 import openai
-# # --- 1. Load configuration from .env ---
-companies={
+
+# --- 1. Load configuration from .env ---
+def load_config():
+    load_dotenv(os.getenv('DOTENV_PATH', '.env'))
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    st.set_page_config(page_title="Stock & Query App", layout="wide")
+
+
+# --- 2. Define the pool of available companies ---
+def get_companies():
+    return {
         'Apple Inc.': 'AAPL',
         'Microsoft Corp.': 'MSFT',
         'NVIDIA': 'NVDA',
@@ -39,36 +43,10 @@ companies={
         'Oracle': 'ORCL'
     }
 
-def load_config():
-    # load_dotenv(os.getenv('DOTENV_PATH', '.env'))
-    openai.api_key = st.secrets["OPENAI_API_KEY"]
-    st.set_page_config(page_title="Stock & Query App",)
 
-# --- 2. Define the pool of available companies ---
 # --- 3. Initialize all three agents with shared model config ---
 def init_agents():
-    base_model = OpenAIChat(id="gpt-3.5-turbo-0125",stream=True,)
-#     base_model = Gemini(
-#     id="gemini-1.5-flash",
-#     name="Gemini",
-#     provider="Google",
-# api_key=*****
-#     max_output_tokens=512,       # limit output
-#     temperature=0.7,
-# )
-    # base_model = DeepSeekChat(
-    #     id="deepseek-v1",
-    #     name="DeepSeek"
-    #     # agar DeepSeekChat ko api_key ya koi config chahiye to yahan pass karo
-    # )
-    # groq_key = st.secrets["GROQ_API_KEY"]
-
-    # base_model=Groq(
-    #     id="llama-3.3-70b-versatile",
-    #     api_key=groq_key,
-         # temperature=0.7,           # optional
-        # max_output_tokens=1024,    # optional
-    # )
+    base_model = OpenAIChat(id="gpt-3.5-turbo-1106")
     web_agent = Agent(
         name="Web Agent",
         role="Search the web for information",
@@ -92,8 +70,8 @@ def init_agents():
         )],
         instructions=[
             "Use tables to display data, not text",
-            "Be concise and restrict to the topic ",
-            "Always include sources (links) ",
+            "Be concise and to the point ",
+            "Always include sources (links)",
         ],
         show_tools_calls=True,
         markdown=True,
@@ -110,8 +88,7 @@ def init_agents():
     )
     return web_agent, finance_agent, final_agent
 
-def send_input():
-    st.session_state.send_input=True
+
 # --- 4. Get user inputs (tickers + custom query) from sidebar & main UI ---
 def get_user_inputs(companies: dict):
     st.sidebar.header("Select Companies")
@@ -136,6 +113,10 @@ def get_user_inputs(companies: dict):
 
     user_query = st.text_input("Your Query:", key="user_query")
 
+    # optional debug
+    print("selected type", type(selected))
+    print("selected values", selected)
+
     return tickers_input, user_query
 
 
@@ -147,7 +128,7 @@ def fetch_agent_responses(tickers, combined_payload, web_agent, finance_agent):
         web_resp = web_agent.run(f"Explain {combined_payload} with web sources")
     # 5b. Finance data
     with st.spinner("💹 Fetching finance data..."):
-        finance_resp = finance_agent.run(f"Get financial details for {combined_payload}")
+        finance_resp = finance_agent.run(f"Get financial details for {tickers}")
     return web_resp, finance_resp
 
 
@@ -173,65 +154,15 @@ Now, based on this information, give a final summarized answer in a clear, frien
 def main():
     # Load config & agents
     load_config()
-    companies={
-        'Apple Inc.': 'AAPL',
-        'Microsoft Corp.': 'MSFT',
-        'NVIDIA': 'NVDA',
-        'Tesla': 'TSLA',
-        'BlackRock': 'BLK',
-        'LVMH': 'MC.PA',
-        'Samsung Electronics': '005930.KS',
-        'Amazon': 'AMZN',
-        'Alphabet': 'GOOGL',
-        'Meta Platforms': 'META',
-        'Berkshire Hathaway': 'BRK.B',
-        'Visa': 'V',
-        'JPMorgan Chase': 'JPM',
-        'Johnson & Johnson': 'JNJ',
-        'UnitedHealth Group': 'UNH',
-        'Procter & Gamble': 'PG',
-        'Mastercard': 'MA',
-        'Eli Lilly': 'LLY',
-        'Home Depot': 'HD',
-        'Walmart': 'WMT',
-        'Bank of America': 'BAC',
-        'Disney': 'DIS',
-        'Intel': 'INTC',
-        'Oracle': 'ORCL'
-    }
-
+    companies = get_companies()
     web_agent, finance_agent, final_agent = init_agents()
-    
 
     # Page title
-    st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
-    st.title("📊 Stock Insights & Real-Time Market Answers")
-    def get_user_inputs(companies: dict):
-            st.sidebar.header("Select Companies")
-            # dynamic checkboxes
-            selected = [
-                ticker for name, ticker in companies.items()
-                if st.sidebar.checkbox(name, value=False)
-            ]
-            print("Selected tickers:", selected)
-            tickers_input = st.text_input(
-                "Tickers (comma-separated):",
-                value=", ".join(selected),
-                key="tickers_input"
-            )
-            user_query = st.text_input("Your Query:", key="user_query")
-            st.write("Selected tickers:", selected)
-            print(list(selected))
-            st.write(list(selected))
-            st.write("tickers_input",tickers_input)
-            return tickers_input, user_query
-      
-    chat_container = st.container()
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    st.title("Stock Details & Custom Query")
+
     # Inputs
     tickers_input, user_query = get_user_inputs(companies)
-    if st.button("Send") or send_input():
+    if st.button("Send"):
         # Validate tickers
         tickers = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]
         if not tickers:
@@ -246,13 +177,10 @@ def main():
 
         # Fetch intermediate results
         web_resp, finance_resp = fetch_agent_responses(tickers, combined, web_agent, finance_agent)
-
         # Get final summary
         final_answer = summarize_final_answer(combined, web_resp, finance_resp, final_agent)
-
         # Display only the final result
         st.markdown(final_answer)
-
 
 if __name__ == "__main__":
     main()

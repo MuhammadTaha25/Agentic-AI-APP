@@ -120,7 +120,7 @@ def get_user_inputs(companies: dict):
         ticker for name, ticker in companies.items()
         if st.sidebar.checkbox(name, value=False)
     ]
-
+    print("Selected tickers:", selected)
     tickers_input = st.text_input(
         "Tickers (comma-separated):",
         value=", ".join(selected),

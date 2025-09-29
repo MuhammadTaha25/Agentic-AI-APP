@@ -117,19 +117,28 @@ def send_input():
 # --- 4. Get user inputs (tickers + custom query) from sidebar & main UI ---
 def get_user_inputs(companies: dict):
     st.sidebar.header("Select Companies")
-    # dynamic checkboxes
-    selected = [
-        ticker for name, ticker in companies.items()
-        if st.sidebar.checkbox(name, value=False)
-    ]
 
+    # create checkboxes with stable keys
+    for name, ticker in companies.items():
+        st.sidebar.checkbox(name, key=f"cb_{ticker}")
+
+    # read checkbox states from session_state
+    selected = [ticker for name, ticker in companies.items() if st.session_state.get(f"cb_{ticker}", False)]
+    tickers_default = ", ".join(selected)
+
+    # update session value only when checkboxes changed (simple logic)
+    # This will overwrite the text_input when checkboxes change.
+    st.session_state['tickers_input_from_checkboxes'] = tickers_default
+
+    # show text_input using the computed value as initial value
     tickers_input = st.text_input(
         "Tickers (comma-separated):",
-        value=", ".join(selected),
+        value=st.session_state.get('tickers_input_from_checkboxes', ""),
         key="tickers_input"
     )
+
     user_query = st.text_input("Your Query:", key="user_query")
-    return tickers_input, user_query,  
+    return tickers_input, user_query
 
 
 # --- 5. Query each agent and return their raw responses ---

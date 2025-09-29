@@ -1,4 +1,4 @@
-imimport os
+import os
 from dotenv import load_dotenv
 import streamlit as st
 from phi.tools.duckduckgo import DuckDuckGo

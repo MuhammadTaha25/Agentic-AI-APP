@@ -50,27 +50,6 @@ def get_companies():
 # --- 3. Initialize all three agents with shared model config ---
 def init_agents():
     base_model = OpenAIChat(id="gpt-3.5-turbo-0125",stream=True,)
-#     base_model = Gemini(
-#     id="gemini-1.5-flash",
-#     name="Gemini",
-#     provider="Google",
-# api_key=*****
-#     max_output_tokens=512,       # limit output
-#     temperature=0.7,
-# )
-    # base_model = DeepSeekChat(
-    #     id="deepseek-v1",
-    #     name="DeepSeek"
-    #     # agar DeepSeekChat ko api_key ya koi config chahiye to yahan pass karo
-    # )
-    # groq_key = st.secrets["GROQ_API_KEY"]
-
-    # base_model=Groq(
-    #     id="llama-3.3-70b-versatile",
-    #     api_key=groq_key,
-         # temperature=0.7,           # optional
-        # max_output_tokens=1024,    # optional
-    # )
     web_agent = Agent(
         name="Web Agent",
         role="Search the web for information",
@@ -114,22 +93,28 @@ def init_agents():
 
 def send_input():
     st.session_state.send_input=True
+
 # --- 4. Get user inputs (tickers + custom query) from sidebar & main UI ---
 def get_user_inputs(companies: dict):
     st.sidebar.header("Select Companies")
-    # dynamic checkboxes
-    selected = [
-        ticker for name, ticker in companies.items()
-        if st.sidebar.checkbox(name, value=False)
-    ]
 
+    # create checkboxes with stable keys
+    for name, ticker in companies.items():
+        st.sidebar.checkbox(name, key=f"cb_{ticker}")
+
+    # read checkbox states from session_state
+    selected = [ticker for name, ticker in companies.items() if st.session_state.get(f"cb_{ticker}", False)]
+    tickers_default = ", ".join(selected)
+
+    # show text_input using selected tickers as default value
     tickers_input = st.text_input(
         "Tickers (comma-separated):",
-        value=", ".join(selected),
+        value=tickers_default,
         key="tickers_input"
     )
+
     user_query = st.text_input("Your Query:", key="user_query")
-    return tickers_input, user_query,  
+    return tickers_input, user_query
 
 
 # --- 5. Query each agent and return their raw responses ---
@@ -187,7 +172,7 @@ def main():
             return
 
         # Combine for consistent payload
-        combined = f"{tickers}.{user_query}"
+        combined = f"{', '.join(tickers)} - {user_query}"
 
         # Fetch intermediate results
         web_resp, finance_resp = fetch_agent_responses(tickers, combined, web_agent, finance_agent)

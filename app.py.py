@@ -210,9 +210,9 @@ def main():
                 key="tickers_input"
             )
             user_query = st.text_input("Your Query:", key="user_query")
-            st.write("Selected tickers:", selected)
-            return tickers_input, user_query, 
-    
+            # st.write("Selected tickers:", selected)
+            return tickers_input, user_query
+      st.write("tickers_input",tickers_input)
     chat_container = st.container()
     if "messages" not in st.session_state:
         st.session_state.messages = []

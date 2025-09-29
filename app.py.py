@@ -196,7 +196,23 @@ def main():
     # Page title
     st.set_page_config(page_title="MarketBot | Stock & News Insights", layout="wide")
     st.title("📊 Stock Insights & Real-Time Market Answers")
-    st.write("Selected tickers:", selected)
+    def get_user_inputs(companies: dict):
+            st.sidebar.header("Select Companies")
+            # dynamic checkboxes
+            selected = [
+                ticker for name, ticker in companies.items()
+                if st.sidebar.checkbox(name, value=False)
+            ]
+            print("Selected tickers:", selected)
+            tickers_input = st.text_input(
+                "Tickers (comma-separated):",
+                value=", ".join(selected),
+                key="tickers_input"
+            )
+            user_query = st.text_input("Your Query:", key="user_query")
+            st.write("Selected tickers:", selected)
+            return tickers_input, user_query, 
+    
     chat_container = st.container()
     if "messages" not in st.session_state:
         st.session_state.messages = []

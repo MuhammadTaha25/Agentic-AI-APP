@@ -158,7 +158,7 @@ def main():
     web_agent, finance_agent, final_agent = init_agents()
 
     # Page title
-    st.title("Stock Details & Custom Query")
+    st.title("MarketBot | Stock & News Insights")
 
     # Inputs
     tickers_input, user_query = get_user_inputs(companies)

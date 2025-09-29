@@ -17,35 +17,7 @@ def load_config():
     openai.api_key = st.secrets["OPENAI_API_KEY"]
     st.set_page_config(page_title="Stock & Query App",)
 
-# --- 2. Define the pool of available companies ---
-companies={
-        'Apple Inc.': 'AAPL',
-        'Microsoft Corp.': 'MSFT',
-        'NVIDIA': 'NVDA',
-        'Tesla': 'TSLA',
-        'BlackRock': 'BLK',
-        'LVMH': 'MC.PA',
-        'Samsung Electronics': '005930.KS',
-        'Amazon': 'AMZN',
-        'Alphabet': 'GOOGL',
-        'Meta Platforms': 'META',
-        'Berkshire Hathaway': 'BRK.B',
-        'Visa': 'V',
-        'JPMorgan Chase': 'JPM',
-        'Johnson & Johnson': 'JNJ',
-        'UnitedHealth Group': 'UNH',
-        'Procter & Gamble': 'PG',
-        'Mastercard': 'MA',
-        'Eli Lilly': 'LLY',
-        'Home Depot': 'HD',
-        'Walmart': 'WMT',
-        'Bank of America': 'BAC',
-        'Disney': 'DIS',
-        'Intel': 'INTC',
-        'Oracle': 'ORCL'
-    }
-
-
+# --- 2. Define the pool of available companies --
 # --- 3. Initialize all three agents with shared model config ---
 def init_agents():
     base_model = OpenAIChat(id="gpt-3.5-turbo-0125",stream=True,)
@@ -149,7 +121,32 @@ Now, based on this information, give a final summarized answer in a clear, frien
 def main():
     # Load config & agents
     load_config()
-    companies = companies
+    companies={
+        'Apple Inc.': 'AAPL',
+        'Microsoft Corp.': 'MSFT',
+        'NVIDIA': 'NVDA',
+        'Tesla': 'TSLA',
+        'BlackRock': 'BLK',
+        'LVMH': 'MC.PA',
+        'Samsung Electronics': '005930.KS',
+        'Amazon': 'AMZN',
+        'Alphabet': 'GOOGL',
+        'Meta Platforms': 'META',
+        'Berkshire Hathaway': 'BRK.B',
+        'Visa': 'V',
+        'JPMorgan Chase': 'JPM',
+        'Johnson & Johnson': 'JNJ',
+        'UnitedHealth Group': 'UNH',
+        'Procter & Gamble': 'PG',
+        'Mastercard': 'MA',
+        'Eli Lilly': 'LLY',
+        'Home Depot': 'HD',
+        'Walmart': 'WMT',
+        'Bank of America': 'BAC',
+        'Disney': 'DIS',
+        'Intel': 'INTC',
+        'Oracle': 'ORCL'
+    }
     web_agent, finance_agent, final_agent = init_agents()
 
     # Page title

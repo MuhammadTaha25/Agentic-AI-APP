@@ -210,7 +210,7 @@ def main():
                 key="tickers_input"
             )
             user_query = st.text_input("Your Query:", key="user_query")
-            # st.write("Selected tickers:", selected)
+            st.write("Selected tickers:", selected)
             st.write("tickers_input",tickers_input)
             return tickers_input, user_query
       

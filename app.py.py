@@ -1,17 +1,35 @@
 import os
 from dotenv import load_dotenv
 import streamlit as st
+
+# Your phi/OpenAI/YFinance imports (same as original)
 from phi.tools.duckduckgo import DuckDuckGo
 from phi.agent import Agent
 from phi.model.openai import OpenAIChat
 from phi.tools.yfinance import YFinanceTools
+# from phi.model.google import Gemini
+# from phi.model.deepseek import DeepSeekChat
 from phi.model.groq import Groq
 
-# --- 1. Load configuration ---
-def load_config():
-    st.set_page_config(page_title="Stock & Query App", layout="wide")
+import openai
 
-# --- 2. Define the pool of available companies ---
+# ---------------------------
+# Helper / setup functions
+# ---------------------------
+
+def load_config():
+    """
+    Load secrets / env vars. Don't call st.set_page_config here.
+    """
+    # load_dotenv(os.getenv('DOTENV_PATH', '.env'))
+    # Expecting Streamlit secrets to have OPENAI_API_KEY
+    api_key = st.secrets.get("OPENAI_API_KEY") if hasattr(st, "secrets") else None
+    if not api_key:
+        # If you prefer, raise or st.error later in UI
+        return None
+    openai.api_key = api_key
+    return api_key
+
 def get_companies():
     return {
         'Apple Inc.': 'AAPL',
@@ -40,10 +58,13 @@ def get_companies():
         'Oracle': 'ORCL'
     }
 
-# --- 3. Initialize agents ---
 def init_agents():
+    """
+    Initialize agents with a shared base model.
+    Adjust model IDs/keys as required for your environment.
+    """
     base_model = OpenAIChat(id="gpt-3.5-turbo-0125", stream=True)
-    
+
     web_agent = Agent(
         name="Web Agent",
         role="Search the web for information",
@@ -56,7 +77,6 @@ def init_agents():
         show_tools_calls=True,
         markdown=True,
     )
-    
     finance_agent = Agent(
         name="Finance Agent",
         model=base_model,
@@ -74,7 +94,6 @@ def init_agents():
         show_tools_calls=True,
         markdown=True,
     )
-    
     final_agent = Agent(
         name="Final Answer Agent",
         model=base_model,
@@ -85,54 +104,40 @@ def init_agents():
         ],
         markdown=True,
     )
-    
     return web_agent, finance_agent, final_agent
 
-# --- 4. Get user inputs ---
+def send_input():
+    """
+    Callback for the Send button.
+    We set a flag in session_state so app flow can continue.
+    """
+    st.session_state.send_input = True
+
 def get_user_inputs(companies: dict):
     st.sidebar.header("Select Companies")
-    
-    # Initialize session state for selected companies
-    if 'selected_companies' not in st.session_state:
-        st.session_state.selected_companies = []
-    
-    # Dynamic checkboxes - update selected companies
-    selected = []
-    for name, ticker in companies.items():
-        if st.sidebar.checkbox(name, value=False, key=f"checkbox_{ticker}"):
-            selected.append(ticker)
-    
-    # Update session state
-    st.session_state.selected_companies = selected
-    
-    # Display current selection
-    if selected:
-        st.sidebar.write("**Currently selected:**", ", ".join(selected))
-    
-    # Text input with current selection
+    # dynamic checkboxes
+    selected = [
+        ticker for name, ticker in companies.items()
+        if st.sidebar.checkbox(name, value=False)
+    ]
+
     tickers_input = st.text_input(
         "Tickers (comma-separated):",
-        value=", ".join(st.session_state.selected_companies),
+        value=", ".join(selected),
         key="tickers_input"
     )
-    
     user_query = st.text_input("Your Query:", key="user_query")
-    
     return tickers_input, user_query
 
-# --- 5. Query agents ---
 def fetch_agent_responses(tickers, combined_payload, web_agent, finance_agent):
-    # Web search
+    # 5a. Web search
     with st.spinner("🔎 Searching the web..."):
         web_resp = web_agent.run(f"Explain {combined_payload} with web sources")
-    
-    # Finance data
+    # 5b. Finance data
     with st.spinner("💹 Fetching finance data..."):
         finance_resp = finance_agent.run(f"Get financial details for {combined_payload}")
-    
     return web_resp, finance_resp
 
-# --- 6. Final summary ---
 def summarize_final_answer(combined_payload, web_resp, finance_resp, final_agent):
     prompt = f"""
 User Query: {combined_payload}
@@ -149,41 +154,78 @@ Now, based on this information, give a final summarized answer in a clear, frien
         final_resp = final_agent.run(prompt)
     return final_resp.get_content_as_string()
 
-# --- 7. Main app ---
+# ---------------------------
+# Main app
+# ---------------------------
+
 def main():
-    load_config()
+    # IMPORTANT: call this once and before any other st.* calls that render content
+    st.set_page_config(
+        page_title="MarketBot | Stock & News Insights",
+        layout="wide",
+        initial_sidebar_state="expanded"   # <-- sidebar open by default
+    )
+
+    # Load API keys & config
+    api_key = load_config()
+    if not api_key:
+        st.error("Missing OPENAI_API_KEY in Streamlit secrets. Please add it and reload the app.")
+        # Still show basic UI so user can edit inputs if needed
     companies = get_companies()
-    web_agent, finance_agent, final_agent = init_agents()
+
+    # Initialize agents (may be slow — consider caching if needed)
+    try:
+        web_agent, finance_agent, final_agent = init_agents()
+    except Exception as e:
+        st.error(f"Failed to initialize agents: {e}")
+        return
 
     st.title("📊 Stock Insights & Real-Time Market Answers")
-    
-    # Get user inputs
+
+    # Initialize session state flags
+    if "send_input" not in st.session_state:
+        st.session_state.send_input = False
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Inputs
     tickers_input, user_query = get_user_inputs(companies)
-    
-    # Send button
-    if st.button("Send", type="primary"):
-        # Validate inputs
+
+    # Use on_click to avoid calling send_input immediately
+    st.button("Send", on_click=send_input)
+
+    # Proceed if button clicked (flag set)
+    if st.session_state.get("send_input", False):
+        # Clear flag immediately so subsequent reruns don't auto-fire
+        st.session_state.send_input = False
+
+        # Validate form
         tickers = [t.strip().upper() for t in tickers_input.split(",") if t.strip()]
-        
         if not tickers:
             st.error("Please select or enter at least one ticker.")
             return
-        
         if not user_query.strip():
             st.error("Please enter your query.")
             return
 
-        # Combine for consistent payload
-        combined = f"{tickers} - {user_query}"
+        # Combine payload: nicer format than Python list literal
+        combined = f"{', '.join(tickers)} — {user_query}"
 
-        # Fetch responses
-        web_resp, finance_resp = fetch_agent_responses(tickers, combined, web_agent, finance_agent)
+        # Fetch intermediate results
+        try:
+            web_resp, finance_resp = fetch_agent_responses(tickers, combined, web_agent, finance_agent)
+        except Exception as e:
+            st.error(f"Error while fetching data from agents: {e}")
+            return
 
-        # Get final summary
-        final_answer = summarize_final_answer(combined, web_resp, finance_resp, final_agent)
+        # Summarize final answer
+        try:
+            final_answer = summarize_final_answer(combined, web_resp, finance_resp, final_agent)
+        except Exception as e:
+            st.error(f"Error while summarizing final answer: {e}")
+            return
 
-        # Display final result
-        st.markdown("## 📋 Final Analysis")
+        # Display final result (markdown - agents already produce markdown)
         st.markdown(final_answer)
 
 if __name__ == "__main__":

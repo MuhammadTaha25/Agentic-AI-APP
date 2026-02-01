@@ -10,3 +10,4 @@ ddgs
 openai
 streamlit_mic_recorder
 google-generativeai
+streamlit
